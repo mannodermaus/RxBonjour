@@ -1,0 +1,21 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION
+        targetSdkVersion TARGET_SDK_VERSION
+        versionName VERSION_NAME
+    }
+}
+
+dependencies {
+    // Reactive extensions
+    compile 'io.reactivex:rxandroid:0.24.0'
+
+    // Network Service Discovery (pre-JB)
+    compile 'javax.jmdns:jmdns:3.4.1'
+}

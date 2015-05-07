@@ -1,0 +1,9 @@
+<resources>
+	<string name="app_name">RxBonjour Example</string>
+
+	<string name="tv_empty">No results…</string>
+	<string name="et_initialtype">_http._tcp</string>
+	<string name="hint_type">Enter Service Type (e.g. \'_http._tcp\')…</string>
+	<string name="button_apply">Apply</string>
+	<string name="toast_invalidtype">\'%s\' is not a valid Bonjour type!</string>
+</resources>

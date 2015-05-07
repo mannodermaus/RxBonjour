@@ -17,7 +17,6 @@ Start a network service discovery using `RxBonjour.startDiscovery(Context, Strin
 RxBonjour.startDiscovery(this, "_http._tcp")
 		.subscribe(new Action1<BonjourEvent>() {
 			@Override public void call(BonjourEvent bonjourEvent) {
-				// Depending on the type of event and the availability of the item, adjust the adapter
 				BonjourService item = bonjourEvent.getService();
 				switch (bonjourEvent.getType()) {
 					case ADDED:
