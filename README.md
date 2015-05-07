@@ -5,8 +5,18 @@ Disclaimer: This library is to be considered **very early** in terms of maturity
 
 ## Download
 
+Add the [Jitpack][jit] repository to your project-level or module-level `build.gradle`:
 ```groovy
-As of now, this project isn't available as a Maven artifact. I'm working on it!
+repositories {
+	maven {
+		url "https://jitpack.io"
+    }
+}
+```
+
+Now, you can add the RxBonjour dependency:
+```groovy
+compile 'com.github.aurae:RxBonjour:0.1.0'
 ```
 
 ## Usage
@@ -72,4 +82,5 @@ The support implementation utilizes [jmDNS 3.4.1][jmdns] and a `WifiManager` mul
 
 	
  [jmdns]: https://github.com/openhab/jmdns
+ [jit]: https://jitpack.io
 	
