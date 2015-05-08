@@ -29,7 +29,7 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 	private static final String SUFFIX = ".local.";
 
 	/** Tag to associate with the multicast lock */
-	private static final String LOCK_TAG = "NtMeterBonjourDiscovery";
+	private static final String LOCK_TAG = "RxBonjourDiscovery";
 
 	/** Multicast lock acquired by the device */
 	private WifiManager.MulticastLock lock;
@@ -139,9 +139,13 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 		return obs
 				.doOnUnsubscribe(new Action0() {
 					@Override public void call() {
-						// Release the lock and all other resources
-						lock.release();
+						// Release the lock and clean up the JmDNS client
 						jmdns.removeServiceListener(dnsType, listener);
+						try {
+							jmdns.close();
+						} catch (IOException ignored) {
+						}
+						lock.release();
 					}
 				});
 	}
