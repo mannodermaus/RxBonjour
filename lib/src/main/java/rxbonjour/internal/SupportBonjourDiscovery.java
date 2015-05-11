@@ -14,6 +14,7 @@ import javax.jmdns.ServiceListener;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
+import rx.schedulers.Schedulers;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
 
@@ -141,11 +142,24 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 					@Override public void call() {
 						// Release the lock and clean up the JmDNS client
 						jmdns.removeServiceListener(dnsType, listener);
-						try {
-							jmdns.close();
-						} catch (IOException ignored) {
-						}
-						lock.release();
+						Observable<Void> cleanUpObservable = Observable.create(new Observable.OnSubscribe<Void>() {
+							@Override public void call(final Subscriber<? super Void> subscriber) {
+								// Close the JmDNS instance and release the multicast lock
+								// (do this asynchronously because JmDNS.close() blocks)
+								try {
+									jmdns.close();
+								} catch (IOException ignored) {
+								}
+								lock.release();
+								
+								// Unsubscribe from the observable automatically
+								subscriber.unsubscribe();
+							}
+						);
+						cleanUpObservable
+							.subscribeOn(Schedulers.io())
+							.observeOn(Schedulers.io())
+							.subscribe();
 					}
 				});
 	}
