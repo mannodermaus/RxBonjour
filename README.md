@@ -16,12 +16,12 @@ repositories {
 
 Now, you can add the RxBonjour dependency:
 ```groovy
-compile 'com.github.aurae:RxBonjour:0.1.1'
+compile 'com.github.aurae:RxBonjour:0.1.2'
 ```
 
 ## Usage
 
-Start a network service discovery using `RxBonjour.startDiscovery(Context, String)` and subscribe to the returned `Observable`:
+Create a network service discovery request using `RxBonjour.startDiscovery(Context, String)` and subscribe to the returned `Observable`:
 
 ```java
 RxBonjour.startDiscovery(this, "_http._tcp")
@@ -40,7 +40,7 @@ RxBonjour.startDiscovery(this, "_http._tcp")
 			}
 		}, new Action1<Throwable>() {
 			@Override public void call(Throwable throwable) {
-				// ...
+				// Service discovery failed, for instance
 			}
 		});
 ```
@@ -49,17 +49,28 @@ RxBonjour pre-configures the returned Observables to run on an I/O thread, but r
 
 ## Implementations
 
-RxBonjour comes with two implementations for network service discovery.
+RxBonjour comes with two implementations for network service discovery. By default, the support implementation is used because of the unreliable state of the `NsdManager` APIs and known bugs with that. If you **really** want to use `NsdManager` on devices running Jelly Bean and up though, you can specify this when creating service discovery Observables:
+
+```java
+// If you're feeling real and ready to reboot your device once NsdManager breaks, pass in "true" to use it for supported devices
+RxBonjour.startDiscovery(this, "_http._tcp", true)
+		.subscribe(new Action1<BonjourEvent>() {
+			// ...
+		}, new Action1<Throwable>() {
+			// ...
+		});
+```
 
 ### NsdManager implementation (v16)
 
-On devices running Jelly Bean and up, Android's native Network Service Discovery API, centered around `NsdManager`, is used. If your app's minimum API level is 16 or higher, you don't need to do any additional setup in order to have RxBonjour ready to go.
+On devices running Jelly Bean and up, Android's native Network Service Discovery API, centered around `NsdManager`, can be used.
 
 ### Support implementation (v8)
 
-The support implementation utilizes [jmDNS 3.4.1][jmdns] and a `WifiManager` multicasts lock as its service discovery backbone; because of this, you need to add the following permissions to your `AndroidManifest.xml` in order to allow jmDNS to do its thing:
+The support implementation utilizes the latest available version of [jmDNS][jmdns] (a snapshot of version **3.4.2**) and a `WifiManager` multicast lock as its service discovery backbone; because of this, you need to add the following permissions to your `AndroidManifest.xml` in order to allow jmDNS to do its thing:
 
 ```xml
+<uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
 ```

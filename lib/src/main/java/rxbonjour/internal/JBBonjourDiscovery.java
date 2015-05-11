@@ -62,8 +62,6 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 	/* Begin overrides */
 
 	@Override public Observable<BonjourEvent> start(final String type) {
-
-
 		Observable<BonjourEvent> obs = Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
 			@Override public void call(final Subscriber<? super BonjourEvent> subscriber) {
 				// Create the discovery listener
@@ -117,7 +115,7 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 					}
 				};
 
-				// Obtain the NSD manager and start discovering
+				// Obtain the NSD manager and start discovering once received
 				nsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
 				nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
 			}
@@ -130,14 +128,10 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 						try {
 							resolveBacklog.quit();
 							nsdManager.stopServiceDiscovery(discoveryListener);
-						} catch (IllegalArgumentException ex) {
+						} catch (Exception ignored) {
 							// "Service discovery not active on discoveryListener", thrown if starting the service discovery was unsuccessful
 						}
 					}
 				});
 	}
-
-	/* Begin inner classes */
-
-
 }
