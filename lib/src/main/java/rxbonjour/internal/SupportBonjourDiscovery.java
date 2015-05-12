@@ -151,11 +151,11 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 								} catch (IOException ignored) {
 								}
 								lock.release();
-								
+
 								// Unsubscribe from the observable automatically
 								subscriber.unsubscribe();
 							}
-						);
+						});
 						cleanUpObservable
 							.subscribeOn(Schedulers.io())
 							.observeOn(Schedulers.io())
