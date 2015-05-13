@@ -5,6 +5,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.util.Enumeration;
 
@@ -17,6 +18,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
 import rx.schedulers.Schedulers;
+import rxbonjour.exc.StaleContextException;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
 
@@ -44,10 +46,9 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 	/**
 	 * Constructor
 	 *
-	 * @param context Context of the discovery
 	 */
-	public SupportBonjourDiscovery(Context context) {
-		super(context);
+	public SupportBonjourDiscovery() {
+		super();
 	}
 
 	/* Begin private */
@@ -103,12 +104,21 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 
 	/* Begin overrides */
 
-	@Override public Observable<BonjourEvent> start(final String type) {
+	@Override public Observable<BonjourEvent> start(Context context, final String type) {
 		// Append ".local." suffix in order to have JmDNS pick up on the services
 		final String dnsType = type + SUFFIX;
 
+		// Create a weak reference to the incoming Context
+		final WeakReference<Context> weakContext = new WeakReference<>(context);
+
 		Observable<BonjourEvent> obs = Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
 			@Override public void call(final Subscriber<? super BonjourEvent> subscriber) {
+				Context context = weakContext.get();
+				if (context == null) {
+					subscriber.onError(new StaleContextException());
+					return;
+				}
+
 				// Create the service listener
 				listener = new ServiceListener() {
 					@Override public void serviceAdded(ServiceEvent event) {
@@ -129,7 +139,7 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 				};
 
 				// Obtain the multicast lock from the Wifi Manager and acquire it
-				WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 				lock = wifiManager.createMulticastLock(LOCK_TAG);
 				lock.setReferenceCounted(true);
 				lock.acquire();

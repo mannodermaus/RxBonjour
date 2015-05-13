@@ -78,13 +78,13 @@ public final class RxBonjour {
 		// Choose discovery strategy
 		BonjourDiscovery discovery;
 		if (useNsdManager && Build.VERSION.SDK_INT >= JELLY_BEAN) {
-			discovery = new JBBonjourDiscovery(context);
+			discovery = new JBBonjourDiscovery();
 		} else {
-			discovery = new SupportBonjourDiscovery(context);
+			discovery = new SupportBonjourDiscovery();
 		}
 
 		// Create the discovery Observable and pre-configure it
-		return discovery.start(type)
+		return discovery.start(context, type)
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread());
 	}

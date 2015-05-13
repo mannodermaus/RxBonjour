@@ -9,11 +9,8 @@ import rxbonjour.model.BonjourEvent;
  */
 public abstract class BonjourDiscovery {
 
-	protected final Context mContext;
-
-	protected BonjourDiscovery(Context context) {
-		mContext = context;
+	protected BonjourDiscovery() {
 	}
 
-	public abstract rx.Observable<BonjourEvent> start(String type);
+	public abstract rx.Observable<BonjourEvent> start(Context context, String type);
 }

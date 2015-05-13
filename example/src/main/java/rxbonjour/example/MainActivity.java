@@ -3,7 +3,6 @@ package rxbonjour.example;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -112,5 +111,4 @@ public class MainActivity extends AppCompatActivity {
 					}
 				});
 	}
-
 }

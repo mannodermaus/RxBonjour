@@ -7,6 +7,7 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.os.Bundle;
 
+import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import rxbonjour.exc.DiscoveryFailed;
 
 import rx.Observable;
 import rx.functions.Action0;
+import rxbonjour.exc.StaleContextException;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
 
@@ -44,10 +46,9 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 	/**
 	 * Constructor
 	 *
-	 * @param context Context of the discovery
 	 */
-	public JBBonjourDiscovery(Context context) {
-		super(context);
+	public JBBonjourDiscovery() {
+		super();
 	}
 
 	/* Begin private */
@@ -80,9 +81,18 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 
 	/* Begin overrides */
 
-	@Override public Observable<BonjourEvent> start(final String type) {
+	@Override public Observable<BonjourEvent> start(Context context, final String type) {
+		// Create a weak reference to the incoming Context
+		final WeakReference<Context> weakContext = new WeakReference<>(context);
+
 		Observable<BonjourEvent> obs = Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
 			@Override public void call(final Subscriber<? super BonjourEvent> subscriber) {
+				Context context = weakContext.get();
+				if (context == null) {
+					subscriber.onError(new StaleContextException());
+					return;
+				}
+
 				// Create the discovery listener
 				discoveryListener = new NsdManager.DiscoveryListener() {
 					@Override public void onStartDiscoveryFailed(String serviceType, int errorCode) {
@@ -135,7 +145,7 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 				};
 
 				// Obtain the NSD manager and start discovering once received
-				nsdManager = (NsdManager) mContext.getSystemService(Context.NSD_SERVICE);
+				nsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
 				nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
 			}
 		});
@@ -148,7 +158,7 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 							resolveBacklog.quit();
 							nsdManager.stopServiceDiscovery(discoveryListener);
 						} catch (Exception ignored) {
-							// "Service discovery not active on discoveryListener", thrown if starting the service discovery was unsuccessful
+							// "Service discovery not active on discoveryListener", thrown if starting the service discovery was unsuccessful earlier
 						}
 					}
 				});
