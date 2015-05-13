@@ -2,9 +2,11 @@ package rxbonjour.internal;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Enumeration;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
@@ -69,8 +71,16 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 			}
 		}
 
+		// Prepare TXT record Bundle
+		Enumeration<String> keys = info.getPropertyNames();
+		Bundle txtRecords = new Bundle();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			txtRecords.putString(key, info.getPropertyString(key));
+		}
+
 		// Create the service object and wrap it in an event
-		BonjourService service = new BonjourService(event.getName(), event.getType(), address, info.getPort());
+		BonjourService service = new BonjourService(event.getName(), event.getType(), address, info.getPort(), txtRecords);
 		return new BonjourEvent(type, service);
 	}
 

@@ -4,7 +4,11 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
-import android.util.Log;
+import android.os.Build;
+import android.os.Bundle;
+
+import java.nio.charset.Charset;
+import java.util.Map;
 
 import rx.Subscriber;
 import rxbonjour.exc.DiscoveryFailed;
@@ -15,6 +19,7 @@ import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
+import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
 /**
  * Bonjour implementation for Jelly-Bean and up, utilizing the NsdManager APIs.
@@ -54,8 +59,22 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 	 * @param serviceInfo ServiceInfo containing information about the changed service
 	 * @return A BonjourEvent containing the necessary information
 	 */
-	private BonjourEvent newBonjourEvent(BonjourEvent.Type type, NsdServiceInfo serviceInfo) {
-		BonjourService service = new BonjourService(serviceInfo.getServiceName(), serviceInfo.getServiceType(), serviceInfo.getHost(), serviceInfo.getPort());
+	@TargetApi(LOLLIPOP) private BonjourEvent newBonjourEvent(BonjourEvent.Type type, NsdServiceInfo serviceInfo) {
+		// Prepare TXT record Bundle (on Lollipop and up)
+		Bundle txtRecords;
+		if (Build.VERSION.SDK_INT >= LOLLIPOP) {
+			Map<String, byte[]> attributes = serviceInfo.getAttributes();
+			txtRecords = new Bundle(attributes.size());
+			for (String key : attributes.keySet()) {
+				txtRecords.putString(key, new String(attributes.get(key), Charset.forName("UTF-8")));
+			}
+
+		} else {
+			txtRecords = new Bundle(0);
+		}
+
+		// Create and return an event wrapping the BonjourService
+		BonjourService service = new BonjourService(serviceInfo.getServiceName(), serviceInfo.getServiceType(), serviceInfo.getHost(), serviceInfo.getPort(), txtRecords);
 		return new BonjourEvent(type, service);
 	}
 
