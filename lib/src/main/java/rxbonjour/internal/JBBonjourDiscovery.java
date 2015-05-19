@@ -34,9 +34,6 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 	/** Discovery listener fed into the NsdManager */
 	private NsdManager.DiscoveryListener discoveryListener;
 
-	/** Resolve listener fed into the NsdManager */
-	private NsdManager.ResolveListener resolveListener;
-
 	/** NsdManager itself */
 	private NsdManager nsdManager;
 
@@ -125,22 +122,19 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 				resolveBacklog = new Backlog<NsdServiceInfo>() {
 					@Override public void onNext(NsdServiceInfo info) {
 						// Resolve this service info using the corresponding listener
-						nsdManager.resolveService(info, resolveListener);
-					}
-				};
+						nsdManager.resolveService(info, new NsdManager.ResolveListener() {
+							@Override public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
+							}
 
-				// Create the resolve listener
-				resolveListener = new NsdManager.ResolveListener() {
-					@Override public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
-					}
+							@Override public void onServiceResolved(NsdServiceInfo serviceInfo) {
+								if (!subscriber.isUnsubscribed()) {
+									subscriber.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, serviceInfo));
+								}
 
-					@Override public void onServiceResolved(NsdServiceInfo serviceInfo) {
-						if (!subscriber.isUnsubscribed()) {
-							subscriber.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, serviceInfo));
-						}
-
-						// Inform the backlog to continue processing
-						resolveBacklog.proceed();
+								// Inform the backlog to continue processing
+								resolveBacklog.proceed();
+							}
+						});
 					}
 				};
 
