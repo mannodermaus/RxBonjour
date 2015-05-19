@@ -25,6 +25,14 @@
 			android:text="@string/button_apply"/>
 	</LinearLayout>
 
+	<Spinner
+		android:id="@+id/spinner"
+		android:padding="8dp"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:entries="@array/implementations"
+		android:prompt="@string/spinner_prompt"/>
+
 	<FrameLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">

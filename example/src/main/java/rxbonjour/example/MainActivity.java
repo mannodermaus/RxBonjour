@@ -4,13 +4,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.OnItemSelected;
 import rx.Subscription;
 import rx.functions.Action1;
 import rxbonjour.RxBonjour;
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 	private RvBaseAdapter<BonjourService> adapter;
 
 	private Subscription nsdSubscription;
+	private boolean useNsdManager = false;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,6 +72,12 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
+	@OnItemSelected(R.id.spinner) void onSpinnerItemSelected(AdapterView<?> adapter, View view, int position, long id) {
+		// NsdManager implementation is represented by the second item in the spinner's array
+		useNsdManager = (position == 1);
+		restartDiscovery();
+	}
+
 	/* Begin private */
 
 	private void unsubscribe() {
@@ -90,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// Clear the adapter's items, then start a new discovery
 		adapter.clearItems();
-		nsdSubscription = RxBonjour.startDiscovery(this, input)
+		nsdSubscription = RxBonjour.startDiscovery(this, input, useNsdManager)
 				.subscribe(new Action1<BonjourEvent>() {
 					@Override public void call(BonjourEvent bonjourEvent) {
 						// Depending on the type of event and the availability of the item, adjust the adapter
