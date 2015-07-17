@@ -10,8 +10,8 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import rx.Subscription;
@@ -27,17 +27,21 @@ import rxbonjour.model.BonjourService;
  */
 public class MainActivity extends AppCompatActivity {
 
-	@InjectView(R.id.rv) rxbonjour.example.rv.Rv rvItems;
-	@InjectView(R.id.et_type) EditText etInput;
-	private RvBaseAdapter<BonjourService> adapter;
+	/* UI */
 
+	@Bind(R.id.rv) rxbonjour.example.rv.Rv rvItems;
+	@Bind(R.id.et_type) EditText etInput;
+
+	/* Logic */
+
+	private RvBaseAdapter<BonjourService> adapter;
 	private Subscription nsdSubscription;
 	private boolean useNsdManager = false;
 
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		ButterKnife.inject(this);
+		ButterKnife.bind(this);
 
 		// Setup RecyclerView
 		rvItems.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -62,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
 
 		// Unsubscribe from the network service discovery Observable
 		unsubscribe();
+	}
+
+	@Override protected void onDestroy() {
+		super.onDestroy();
+		ButterKnife.unbind(this);
 	}
 
 	@OnClick(R.id.button_apply) void onApplyClicked() {

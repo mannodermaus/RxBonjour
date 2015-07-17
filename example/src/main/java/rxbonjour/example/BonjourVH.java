@@ -6,8 +6,8 @@ import android.widget.TextView;
 
 import java.util.Iterator;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rxbonjour.example.rv.RvBaseHolder;
 import rxbonjour.model.BonjourService;
 
@@ -16,10 +16,10 @@ import rxbonjour.model.BonjourService;
  */
 public class BonjourVH extends RvBaseHolder<BonjourService> {
 
-	@InjectView(R.id.tv_name) TextView tvName;
-	@InjectView(R.id.tv_type) TextView tvType;
-	@InjectView(R.id.tv_host_port) TextView tvHostPort;
-	@InjectView(R.id.tv_txtrecords) TextView tvTxtRecords;
+	@Bind(R.id.tv_name) TextView tvName;
+	@Bind(R.id.tv_type) TextView tvType;
+	@Bind(R.id.tv_host_port) TextView tvHostPort;
+	@Bind(R.id.tv_txtrecords) TextView tvTxtRecords;
 
 	/**
 	 * Constructor
@@ -29,7 +29,7 @@ public class BonjourVH extends RvBaseHolder<BonjourService> {
 	 */
 	protected BonjourVH(LayoutInflater inflater, ViewGroup parent) {
 		super(inflater, parent, R.layout.item_bonjourservice);
-		ButterKnife.inject(this, itemView);
+		ButterKnife.bind(this, itemView);
 	}
 
 	@Override protected void onBindItem(BonjourService item) {
