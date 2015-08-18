@@ -1,5 +1,6 @@
 package rxbonjour.example.rv;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,7 @@ import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
  *
  * @param <E> Item type to be held by the view holder
  */
+@TargetApi(ICE_CREAM_SANDWICH)
 public abstract class RvBaseHolder<E> extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
 	/** The item held by the view holder */

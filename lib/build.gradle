@@ -14,7 +14,7 @@ android {
 
 dependencies {
     // Reactive extensions
-    compile 'io.reactivex:rxandroid:0.25.0'
+    compile 'io.reactivex:rxandroid:1.0.0'
 
     // Network Service Discovery (pre-JB)
     compile 'com.github.openhab:jmdns:24c28e141a'

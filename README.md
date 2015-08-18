@@ -1,5 +1,5 @@
 # RxBonjour
-Say "Hi!" to RxBonjour, a wrapper around Android's network service discovery functionalities with a support implementation for devices below Jelly Bean, going down all the way to API level 8.
+Say "Hi!" to RxBonjour, a wrapper around Android's network service discovery functionalities with a support implementation for devices below Jelly Bean, going down all the way to API level 9.
 
 Disclaimer: This library is to be considered **very early** in terms of maturity. There will probably be issues, especially since NSD is a fragile topic on Android!
 
@@ -16,7 +16,7 @@ repositories {
 
 Now, you can add the RxBonjour dependency:
 ```groovy
-compile 'com.github.aurae:RxBonjour:0.1.5'
+compile 'com.github.aurae:RxBonjour:0.2.0'
 ```
 
 ## Usage
@@ -65,9 +65,9 @@ RxBonjour.startDiscovery(this, "_http._tcp", true)
 
 On devices running Jelly Bean and up, Android's native Network Service Discovery API, centered around `NsdManager`, can be used.
 
-### Support implementation (v8)
+### Support implementation (v9)
 
-The support implementation utilizes the latest available version of [jmDNS][jmdns] (a snapshot of version **3.4.2**) and a `WifiManager` multicast lock as its service discovery backbone; because of this, you need to add the following permissions to your `AndroidManifest.xml` in order to allow jmDNS to do its thing:
+The support implementation utilizes the latest available version of [jmDNS][jmdns] (a snapshot of version **3.4.2**) and a `WifiManager` multicast lock as its service discovery backbone; because of this, including this library in your application's dependencies automatically adds the following permissions to your `AndroidManifest.xml`, in order to allow jmDNS to do its thing:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>

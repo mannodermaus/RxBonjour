@@ -27,14 +27,10 @@ import rxbonjour.model.BonjourService;
  */
 public class MainActivity extends AppCompatActivity {
 
-	/* UI */
-
 	@Bind(R.id.rv) rxbonjour.example.rv.Rv rvItems;
 	@Bind(R.id.et_type) EditText etInput;
-
-	/* Logic */
-
 	private RvBaseAdapter<BonjourService> adapter;
+
 	private Subscription nsdSubscription;
 	private boolean useNsdManager = false;
 
