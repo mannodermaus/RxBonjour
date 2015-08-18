@@ -16,7 +16,7 @@ repositories {
 
 Now, you can add the RxBonjour dependency:
 ```groovy
-compile 'com.github.aurae:RxBonjour:0.2.0'
+compile 'com.github.aurae:RxBonjour:0.2.1'
 ```
 
 ## Usage
