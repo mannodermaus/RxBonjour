@@ -3,22 +3,28 @@ package rxbonjour.model;
 import android.os.Bundle;
 
 import java.net.InetAddress;
+import java.util.Map;
 
 /**
  * @author marcel
  */
 public class BonjourService {
 
+	/** IP versions */
+	public enum IPv {
+		V4, V6
+	}
+
 	private String mName;
 	private String mType;
-	private InetAddress mHost;
+	private Map<IPv, InetAddress> mHostMap;
 	private int mPort;
 	private Bundle mTxtRecords;
 
-	public BonjourService(String name, String type, InetAddress host, int port, Bundle txtRecords) {
+	public BonjourService(String name, String type, Map<IPv, InetAddress> hostMap, int port, Bundle txtRecords) {
 		mName = name;
 		mType = type;
-		mHost = host;
+		mHostMap = hostMap;
 		mPort = port;
 		mTxtRecords = txtRecords;
 	}
@@ -31,8 +37,8 @@ public class BonjourService {
 		return mType;
 	}
 
-	public InetAddress getHost() {
-		return mHost;
+	public Map<IPv, InetAddress> getHostMap() {
+		return mHostMap;
 	}
 
 	public int getPort() {
@@ -56,7 +62,7 @@ public class BonjourService {
 		return "BonjourService{" +
 				"mName='" + mName + '\'' +
 				", mType='" + mType + '\'' +
-				", mHost=" + mHost +
+				", mHostMap=" + mHostMap.toString() +
 				", mPort=" + mPort +
 				'}';
 	}
@@ -73,7 +79,7 @@ public class BonjourService {
 	@Override public int hashCode() {
 		int result = mName != null ? mName.hashCode() : 0;
 		result = 31 * result + (mType != null ? mType.hashCode() : 0);
-		result = 31 * result + (mHost != null ? mHost.hashCode() : 0);
+		result = 31 * result + (mHostMap != null ? mHostMap.hashCode() : 0);
 		result = 31 * result + mPort;
 		return result;
 	}

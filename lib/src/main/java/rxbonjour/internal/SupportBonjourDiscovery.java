@@ -6,9 +6,13 @@ import android.os.Bundle;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Enumeration;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -64,11 +68,14 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 		// Access the event's ServiceInfo and obtain a suitable IP address
 		ServiceInfo info = event.getInfo();
 		InetAddress[] addresses = info.getInetAddresses();
-		InetAddress address = null;
+		Map<BonjourService.IPv, InetAddress> addressMap = new HashMap<>();
 		for (InetAddress a : addresses) {
 			if (a != null) {
-				address = a;
-				break;
+				if (a instanceof Inet4Address) {
+					addressMap.put(BonjourService.IPv.V4, a);
+        } else if (a instanceof Inet6Address) {
+          addressMap.put(BonjourService.IPv.V6, a);
+        }
 			}
 		}
 
@@ -81,7 +88,7 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 		}
 
 		// Create the service object and wrap it in an event
-		BonjourService service = new BonjourService(event.getName(), event.getType(), address, info.getPort(), txtRecords);
+		BonjourService service = new BonjourService(event.getName(), event.getType(), addressMap, info.getPort(), txtRecords);
 		return new BonjourEvent(type, service);
 	}
 
