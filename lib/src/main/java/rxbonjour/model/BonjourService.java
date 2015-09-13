@@ -2,6 +2,8 @@ package rxbonjour.model;
 
 import android.os.Bundle;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Map;
 
@@ -10,21 +12,18 @@ import java.util.Map;
  */
 public class BonjourService {
 
-	/** IP versions */
-	public enum IPv {
-		V4, V6
-	}
-
 	private String mName;
 	private String mType;
-	private Map<IPv, InetAddress> mHostMap;
+	private Inet4Address mHostv4;
+	private Inet6Address mHostv6;
 	private int mPort;
 	private Bundle mTxtRecords;
 
-	public BonjourService(String name, String type, Map<IPv, InetAddress> hostMap, int port, Bundle txtRecords) {
+	public BonjourService(String name, String type, Inet4Address hostv4, Inet6Address hostv6, int port, Bundle txtRecords) {
 		mName = name;
 		mType = type;
-		mHostMap = hostMap;
+		mHostv4 = hostv4;
+		mHostv6 = hostv6;
 		mPort = port;
 		mTxtRecords = txtRecords;
 	}
@@ -37,8 +36,21 @@ public class BonjourService {
 		return mType;
 	}
 
-	public Map<IPv, InetAddress> getHostMap() {
-		return mHostMap;
+	@Deprecated
+	public InetAddress getHost() {
+		if (mHostv4 != null) {
+			return mHostv4;
+		} else {
+			return mHostv6;
+		}
+	}
+
+	public Inet4Address getmHostv4() {
+		return mHostv4;
+	}
+
+	public Inet6Address getmHostv6() {
+		return mHostv6;
 	}
 
 	public int getPort() {
@@ -62,7 +74,8 @@ public class BonjourService {
 		return "BonjourService{" +
 				"mName='" + mName + '\'' +
 				", mType='" + mType + '\'' +
-				", mHostMap=" + mHostMap.toString() +
+				", mHostv4=" + mHostv4 +
+				", mHostv6=" + mHostv6 +
 				", mPort=" + mPort +
 				'}';
 	}
@@ -79,7 +92,8 @@ public class BonjourService {
 	@Override public int hashCode() {
 		int result = mName != null ? mName.hashCode() : 0;
 		result = 31 * result + (mType != null ? mType.hashCode() : 0);
-		result = 31 * result + (mHostMap != null ? mHostMap.hashCode() : 0);
+		result = 31 * result + (mHostv4 != null ? mHostv4.hashCode() : 0);
+		result = 31 * result + (mHostv6 != null ? mHostv6.hashCode() : 0);
 		result = 31 * result + mPort;
 		return result;
 	}

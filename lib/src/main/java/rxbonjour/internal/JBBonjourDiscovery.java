@@ -75,17 +75,18 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 			txtRecords = new Bundle(0);
 		}
 
-		Map<BonjourService.IPv, InetAddress> addressMap = new HashMap<>();
-		if (serviceInfo.getHost() != null) {
-			if (serviceInfo.getHost() instanceof Inet4Address) {
-				addressMap.put(BonjourService.IPv.V4, serviceInfo.getHost());
-			} else if (serviceInfo.getHost() instanceof Inet6Address) {
-				addressMap.put(BonjourService.IPv.V6, serviceInfo.getHost());
-			}
+		InetAddress host = serviceInfo.getHost();
+		Inet4Address hostv4 = null;
+		Inet6Address hostv6 = null;
+		if (host instanceof Inet4Address) {
+			hostv4 = (Inet4Address) host;
+		} else if (host instanceof Inet6Address) {
+			hostv6 = (Inet6Address) host;
 		}
 
+
 		// Create and return an event wrapping the BonjourService
-		BonjourService service = new BonjourService(serviceInfo.getServiceName(), serviceInfo.getServiceType(), addressMap, serviceInfo.getPort(), txtRecords);
+		BonjourService service = new BonjourService(serviceInfo.getServiceName(), serviceInfo.getServiceType(), hostv4, hostv6, serviceInfo.getPort(), txtRecords);
 		return new BonjourEvent(type, service);
 	}
 

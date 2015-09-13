@@ -68,14 +68,15 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 		// Access the event's ServiceInfo and obtain a suitable IP address
 		ServiceInfo info = event.getInfo();
 		InetAddress[] addresses = info.getInetAddresses();
-		Map<BonjourService.IPv, InetAddress> addressMap = new HashMap<>();
+		Inet4Address inet4Address = null;
+		Inet6Address inet6Address = null;
 		for (InetAddress a : addresses) {
 			if (a != null) {
 				if (a instanceof Inet4Address) {
-					addressMap.put(BonjourService.IPv.V4, a);
-        } else if (a instanceof Inet6Address) {
-          addressMap.put(BonjourService.IPv.V6, a);
-        }
+					inet4Address = (Inet4Address) a;
+				} else if (a instanceof Inet6Address) {
+					inet6Address = (Inet6Address) a;
+				}
 			}
 		}
 
@@ -88,7 +89,7 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 		}
 
 		// Create the service object and wrap it in an event
-		BonjourService service = new BonjourService(event.getName(), event.getType(), addressMap, info.getPort(), txtRecords);
+		BonjourService service = new BonjourService(event.getName(), event.getType(), inet4Address, inet6Address, info.getPort(), txtRecords);
 		return new BonjourEvent(type, service);
 	}
 

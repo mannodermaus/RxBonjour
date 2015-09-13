@@ -36,11 +36,11 @@ public class BonjourVH extends RvBaseHolder<BonjourService> {
 	@Override protected void onBindItem(BonjourService item) {
 		tvName.setText(item.getName());
 		tvType.setText(item.getType());
-		if (item.getHostMap().containsKey(BonjourService.IPv.V4)) {
-			tvHostPortV4.setText(item.getHostMap().get(BonjourService.IPv.V4) + ":" + item.getPort());
+		if (item.getmHostv4() != null) {
+			tvHostPortV4.setText(item.getmHostv4() + ":" + item.getPort());
 		}
-		if (item.getHostMap().containsKey(BonjourService.IPv.V6)) {
-			tvHostPortV6.setText(item.getHostMap().get(BonjourService.IPv.V6) + ":" + item.getPort());
+		if (item.getmHostv6() != null) {
+			tvHostPortV6.setText(item.getmHostv6() + ":" + item.getPort());
 		}
 
 		// Display TXT records, if any could be resolved
