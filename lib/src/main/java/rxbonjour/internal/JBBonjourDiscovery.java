@@ -8,7 +8,11 @@ import android.os.Build;
 import android.os.Bundle;
 
 import java.lang.ref.WeakReference;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
 
 import rx.Subscriber;
@@ -71,8 +75,18 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 			txtRecords = new Bundle(0);
 		}
 
+		InetAddress host = serviceInfo.getHost();
+		Inet4Address hostv4 = null;
+		Inet6Address hostv6 = null;
+		if (host instanceof Inet4Address) {
+			hostv4 = (Inet4Address) host;
+		} else if (host instanceof Inet6Address) {
+			hostv6 = (Inet6Address) host;
+		}
+
+
 		// Create and return an event wrapping the BonjourService
-		BonjourService service = new BonjourService(serviceInfo.getServiceName(), serviceInfo.getServiceType(), serviceInfo.getHost(), serviceInfo.getPort(), txtRecords);
+		BonjourService service = new BonjourService(serviceInfo.getServiceName(), serviceInfo.getServiceType(), hostv4, hostv6, serviceInfo.getPort(), txtRecords);
 		return new BonjourEvent(type, service);
 	}
 

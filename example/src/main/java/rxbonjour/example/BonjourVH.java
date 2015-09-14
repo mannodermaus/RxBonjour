@@ -18,7 +18,8 @@ public class BonjourVH extends RvBaseHolder<BonjourService> {
 
 	@Bind(R.id.tv_name) TextView tvName;
 	@Bind(R.id.tv_type) TextView tvType;
-	@Bind(R.id.tv_host_port) TextView tvHostPort;
+	@Bind(R.id.tv_host_port_v4) TextView tvHostPortV4;
+	@Bind(R.id.tv_host_port_v6) TextView tvHostPortV6;
 	@Bind(R.id.tv_txtrecords) TextView tvTxtRecords;
 
 	/**
@@ -35,7 +36,12 @@ public class BonjourVH extends RvBaseHolder<BonjourService> {
 	@Override protected void onBindItem(BonjourService item) {
 		tvName.setText(item.getName());
 		tvType.setText(item.getType());
-		tvHostPort.setText(item.getHost() + ":" + item.getPort());
+		if (item.getmHostv4() != null) {
+			tvHostPortV4.setText(item.getmHostv4() + ":" + item.getPort());
+		}
+		if (item.getmHostv6() != null) {
+			tvHostPortV6.setText(item.getmHostv6() + ":" + item.getPort());
+		}
 
 		// Display TXT records, if any could be resolved
 		int txtRecordCount = item.getTxtRecordCount();
