@@ -5,14 +5,9 @@ import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
-import android.os.Bundle;
 
 import java.lang.ref.WeakReference;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 
 import rx.Subscriber;
@@ -62,32 +57,23 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 	 * @return A BonjourEvent containing the necessary information
 	 */
 	@TargetApi(LOLLIPOP) private BonjourEvent newBonjourEvent(BonjourEvent.Type type, NsdServiceInfo serviceInfo) {
+		// Construct a new BonjourService
+		BonjourService.Builder serviceBuilder = new BonjourService.Builder(serviceInfo.getServiceName(), serviceInfo.getServiceType());
+
 		// Prepare TXT record Bundle (on Lollipop and up)
-		Bundle txtRecords;
 		if (Build.VERSION.SDK_INT >= LOLLIPOP) {
 			Map<String, byte[]> attributes = serviceInfo.getAttributes();
-			txtRecords = new Bundle(attributes.size());
 			for (String key : attributes.keySet()) {
-				txtRecords.putString(key, new String(attributes.get(key), Charset.forName("UTF-8")));
+				serviceBuilder.addTxtRecord(key, new String(attributes.get(key), Charset.forName("UTF-8")));
 			}
-
-		} else {
-			txtRecords = new Bundle(0);
 		}
 
-		InetAddress host = serviceInfo.getHost();
-		Inet4Address hostv4 = null;
-		Inet6Address hostv6 = null;
-		if (host instanceof Inet4Address) {
-			hostv4 = (Inet4Address) host;
-		} else if (host instanceof Inet6Address) {
-			hostv6 = (Inet6Address) host;
-		}
-
+		// Add host address and port
+		serviceBuilder.addAddress(serviceInfo.getHost());
+		serviceBuilder.setPort(serviceInfo.getPort());
 
 		// Create and return an event wrapping the BonjourService
-		BonjourService service = new BonjourService(serviceInfo.getServiceName(), serviceInfo.getServiceType(), hostv4, hostv6, serviceInfo.getPort(), txtRecords);
-		return new BonjourEvent(type, service);
+		return new BonjourEvent(type, serviceBuilder.build());
 	}
 
 	/* Begin overrides */

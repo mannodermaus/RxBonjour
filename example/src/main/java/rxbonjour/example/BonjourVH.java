@@ -1,9 +1,12 @@
 package rxbonjour.example;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.util.Iterator;
 
 import butterknife.Bind;
@@ -34,14 +37,15 @@ public class BonjourVH extends RvBaseHolder<BonjourService> {
 	}
 
 	@Override protected void onBindItem(BonjourService item) {
+		Context context = tvName.getContext();
 		tvName.setText(item.getName());
 		tvType.setText(item.getType());
-		if (item.getmHostv4() != null) {
-			tvHostPortV4.setText(item.getmHostv4() + ":" + item.getPort());
-		}
-		if (item.getmHostv6() != null) {
-			tvHostPortV6.setText(item.getmHostv6() + ":" + item.getPort());
-		}
+
+		// Display host address information
+		Inet4Address inet4Address = item.getV4Host();
+		Inet6Address inet6Address = item.getV6Host();
+		tvHostPortV4.setText(inet4Address != null ? context.getString(R.string.format_host_address_v4, inet4Address, item.getPort()) : "");
+		tvHostPortV6.setText(inet6Address != null ? context.getString(R.string.format_host_address_v6, inet6Address, item.getPort()) : "");
 
 		// Display TXT records, if any could be resolved
 		int txtRecordCount = item.getTxtRecordCount();

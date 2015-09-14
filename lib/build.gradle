@@ -13,6 +13,9 @@ android {
 }
 
 dependencies {
+    // Support annotations
+    compile 'com.android.support:support-annotations:23.0.1'
+
     // Reactive extensions
     compile 'io.reactivex:rxandroid:1.0.1'
 

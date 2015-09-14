@@ -2,17 +2,12 @@ package rxbonjour.internal;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.Enumeration;
 
-import java.util.HashMap;
-import java.util.Map;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -65,32 +60,27 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 	 * @return A BonjourEvent containing the necessary information
 	 */
 	private BonjourEvent newBonjourEvent(BonjourEvent.Type type, ServiceEvent event) {
-		// Access the event's ServiceInfo and obtain a suitable IP address
+		// Construct a new BonjourService
 		ServiceInfo info = event.getInfo();
-		InetAddress[] addresses = info.getInetAddresses();
-		Inet4Address inet4Address = null;
-		Inet6Address inet6Address = null;
-		for (InetAddress a : addresses) {
-			if (a != null) {
-				if (a instanceof Inet4Address) {
-					inet4Address = (Inet4Address) a;
-				} else if (a instanceof Inet6Address) {
-					inet6Address = (Inet6Address) a;
-				}
-			}
-		}
+		BonjourService.Builder serviceBuilder = new BonjourService.Builder(event.getName(), event.getType());
 
 		// Prepare TXT record Bundle
 		Enumeration<String> keys = info.getPropertyNames();
-		Bundle txtRecords = new Bundle();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();
-			txtRecords.putString(key, info.getPropertyString(key));
+			serviceBuilder.addTxtRecord(key, info.getPropertyString(key));
 		}
 
-		// Create the service object and wrap it in an event
-		BonjourService service = new BonjourService(event.getName(), event.getType(), inet4Address, inet6Address, info.getPort(), txtRecords);
-		return new BonjourEvent(type, service);
+		// Add non-null host addresses and port
+		InetAddress[] addresses = info.getInetAddresses();
+		for (InetAddress address : addresses) {
+			if (address == null) continue;
+			serviceBuilder.addAddress(address);
+		}
+		serviceBuilder.setPort(info.getPort());
+
+		// Create and return an event wrapping the BonjourService
+		return new BonjourEvent(type, serviceBuilder.build());
 	}
 
 	/**
