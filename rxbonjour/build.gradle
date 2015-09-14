@@ -1,5 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
+apply plugin: 'com.github.dcendents.android-maven'
+
+// Android-maven configuration for Jitpack.io
+group=GROUP_NAME
+version=VERSION_NAME
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION
