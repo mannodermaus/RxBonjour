@@ -1,10 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
-apply plugin: 'com.github.dcendents.android-maven'
-
-// Android-maven configuration for Jitpack.io
-group=GROUP_NAME
-version=VERSION_NAME
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION
@@ -25,5 +19,40 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.0.1'
 
     // Network Service Discovery (pre-JB)
-    compile 'com.github.openhab:jmdns:24c28e141a'
+    compile 'com.github.openhab:jmdns:jmdns-3.4.2'
 }
+
+afterEvaluate {
+    tasks.withType(Javadoc).each {
+        it.source += configurations.compile
+        it.classpath += configurations.compile
+        it.failOnError = false
+    }
+}
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'RxBonjour'
+
+    publishedGroupId = 'com.github.aurae'
+    libraryName = 'RxBonjour'
+    artifact = 'RxBonjour'
+
+    libraryDescription = 'Reactive spice added to Android\'s network service discovery API.'
+
+    siteUrl = 'https://github.com/aurae/RxBonjour'
+    gitUrl = 'https://github.com/aurae/RxBonjour.git'
+
+    libraryVersion = VERSION_NAME
+
+    developerId = 'aurae'
+    developerName = 'Marcel Schnelle'
+    developerEmail = 'schnellemarcel@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'

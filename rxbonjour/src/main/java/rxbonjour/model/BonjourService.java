@@ -49,7 +49,7 @@ public class BonjourService {
 	 * Obtains the host address of the service.
 	 * For services with both an IPv4 <strong>and</strong> an IPv6 address, the former address takes precedence over the latter,
 	 * so that it always favors the v4 address over the v6 one.
-	 * <p/>
+	 * 
 	 * If you need to access specific addresses, consider using {@link #getV4Host()} and {@link #getV6Host()}, respectively.
 	 *
 	 * @return A host address of the service
@@ -88,7 +88,7 @@ public class BonjourService {
 
 	/**
 	 * Returns a Bundle containing all TXT records associated with the service, stored as &lt;String, String&gt; key-value pairs.
-	 * <p/>
+	 * 
 	 * If the service doesn't have any TXT records, or none could be resolved, this returns an empty Bundle
 	 *
 	 * @return A Bundle containing the service's TXT records

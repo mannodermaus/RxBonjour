@@ -29,13 +29,10 @@ public final class RxBonjour {
 
 	/**
 	 * Starts a Bonjour service discovery for the provided service type.
-	 * <p/>
 	 * This method utilizes the support implementation with JmDNS as its backbone,
 	 * seeing as the official NsdManager APIs are subject to multiple deal-breaking bugs. If you really want to use NsdManager on devices that
 	 * support it (API level 16 or greater), use {@link #startDiscovery(Context, String, boolean)} and pass in <b>true</b> as the final argument.
-	 * <p/>
 	 * This method's return Observable is scheduled to run on an I/O thread and notify subscribers on the main thread.
-	 * <p/>
 	 * This method will throw a Runtime Exception if the input type does not obey Bonjour type specifications. If you intend
 	 * to use this method with arbitrary types that can be provided by user input, it is highly encouraged to verify this input
 	 * using {@link #isBonjourType(String)} <b>before</b> calling this method!
@@ -53,13 +50,13 @@ public final class RxBonjour {
 
 	/**
 	 * Starts a Bonjour service discovery for the provided service type.
-	 * <p/>
+	 * 
 	 * This method chooses the correct NSD implementation based on the device's API level. Please note that the implementation used on Jelly Bean
 	 * and up is subject to multiple deal-breaking bugs, so whenever possible, the support implementation using JmDNS should be used until Google
 	 * resolves these known issues with NsdManager.
-	 * <p/>
+	 * 
 	 * This method's return Observable is scheduled to run on an I/O thread and notify subscribers on the main thread.
-	 * <p/>
+	 * 
 	 * This method will throw a Runtime Exception if the input type does not obey Bonjour type specifications. If you intend
 	 * to use this method with arbitrary types that can be provided by user input, it is highly encouraged to verify this input
 	 * using {@link #isBonjourType(String)} <b>before</b> calling this method!
