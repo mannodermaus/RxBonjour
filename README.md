@@ -21,27 +21,23 @@ compile 'com.github.aurae:RxBonjour:0.3.0'
 
 ## Usage
 
-Create a network service discovery request using `RxBonjour.startDiscovery(Context, String)` and subscribe to the returned `Observable`:
+Create a network service discovery request using `RxBonjour.startDiscovery(Context, String)` and subscribe to the returned `Observable` (this code is using Java 8 syntax for brevity):
 
 ```java
 RxBonjour.startDiscovery(this, "_http._tcp")
-		.subscribe(new Action1<BonjourEvent>() {
-			@Override public void call(BonjourEvent bonjourEvent) {
-				BonjourService item = bonjourEvent.getService();
-				switch (bonjourEvent.getType()) {
-					case ADDED:
-						// Called when a service was discovered
-						break;
+		.subscribe(bonjourEvent -> {
+			BonjourService item = bonjourEvent.getService();
+			switch (bonjourEvent.getType()) {
+				case ADDED:
+					// Called when a service was discovered
+					break;
 
-					case REMOVED:
-						// Called when a service is no longer visible
-						break;
-				}
+				case REMOVED:
+					// Called when a service is no longer visible
+					break;
 			}
-		}, new Action1<Throwable>() {
-			@Override public void call(Throwable throwable) {
-				// Service discovery failed, for instance
-			}
+		}, error -> {
+			// Service discovery failed, for instance
 		});
 ```
 
@@ -54,9 +50,9 @@ RxBonjour comes with two implementations for network service discovery. By defau
 ```java
 // If you're feeling real and ready to reboot your device once NsdManager breaks, pass in "true" to use it for supported devices
 RxBonjour.startDiscovery(this, "_http._tcp", true)
-		.subscribe(new Action1<BonjourEvent>() {
+		.subscribe(bonjourEvent -> {
 			// ...
-		}, new Action1<Throwable>() {
+		}, error -> {
 			// ...
 		});
 ```
