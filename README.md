@@ -5,18 +5,10 @@ Disclaimer: This library is to be considered **very early** in terms of maturity
 
 ## Download
 
-Add the [Jitpack][jit] repository to your project-level or module-level `build.gradle`:
-```groovy
-repositories {
-	maven {
-		url "https://jitpack.io"
-    }
-}
-```
+`RxBonjour` is available on `jcenter()`:
 
-Now, you can add the RxBonjour dependency:
 ```groovy
-compile 'com.github.aurae:RxBonjour:0.3.0'
+compile 'com.github.aurae:rxbonjour:0.3.0'
 ```
 
 ## Usage

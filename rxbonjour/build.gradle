@@ -13,18 +13,17 @@ android {
 
 dependencies {
     // Support annotations
-    compile 'com.android.support:support-annotations:23.0.1'
+    compile "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"
 
     // Reactive extensions
-    compile 'io.reactivex:rxandroid:1.0.1'
+    compile "io.reactivex:rxandroid:$RXANDROID_VERSION"
 
     // Network Service Discovery (pre-JB)
-    compile 'com.github.openhab:jmdns:jmdns-3.4.2'
+    compile fileTree(dir: "libs", include: "jmdns-${JMDNS_JAR_VERSION}.jar")
 }
 
 afterEvaluate {
     tasks.withType(Javadoc).each {
-        it.source += configurations.compile
         it.classpath += configurations.compile
         it.failOnError = false
     }
@@ -34,9 +33,9 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'RxBonjour'
 
-    publishedGroupId = 'com.github.aurae'
+    publishedGroupId = GROUP_NAME
     libraryName = 'RxBonjour'
-    artifact = 'RxBonjour'
+    artifact = ARTIFACT_ID
 
     libraryDescription = 'Reactive spice added to Android\'s network service discovery API.'
 
