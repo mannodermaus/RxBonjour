@@ -14,7 +14,6 @@ import rx.Subscriber;
 import rxbonjour.exc.DiscoveryFailed;
 
 import rx.Observable;
-import rx.functions.Action0;
 import rxbonjour.exc.StaleContextException;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
@@ -24,24 +23,25 @@ import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
 /**
  * Bonjour implementation for Jelly-Bean and up, utilizing the NsdManager APIs.
- *
- * @author marcel
  */
 @TargetApi(JELLY_BEAN)
-public final class JBBonjourDiscovery extends BonjourDiscovery {
+public final class JBBonjourDiscovery implements BonjourDiscovery {
 
 	/** Discovery listener fed into the NsdManager */
-	private NsdManager.DiscoveryListener discoveryListener;
+//	private NsdManager.DiscoveryListener discoveryListener;
 
-	/** NsdManager itself */
-	private NsdManager nsdManager;
+	/** NsdManager instance used for discovery, shared among subscribers */
+	private NsdManager nsdManagerInstance;
+	/** Synchronization lock on the NsdManager instance */
+	private final Object nsdManagerLock = new Object();
+	/** Number of subscribers listening to Bonjour events */
+	private int subscriberCount = 0;
 
 	/** Resolver backlog, necessary because of NsdManager's "one resolve at a time" limitation */
 	private Backlog<NsdServiceInfo> resolveBacklog;
 
 	/**
 	 * Constructor
-	 *
 	 */
 	public JBBonjourDiscovery() {
 		super();
@@ -76,6 +76,21 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 		return new BonjourEvent(type, serviceBuilder.build());
 	}
 
+	/**
+	 * Returns the NsdManager shared among all subscribers for Bonjour events, creating it if necessary.
+	 *
+	 * @param context Context used to access the NsdManager
+	 * @return The NsdManager instance
+	 */
+	private NsdManager getNsdManager(Context context) {
+		synchronized (nsdManagerLock) {
+			if (nsdManagerInstance == null) {
+				nsdManagerInstance = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+			}
+			return nsdManagerInstance;
+		}
+	}
+
 	/* Begin overrides */
 
 	@Override public Observable<BonjourEvent> start(Context context, final String type) {
@@ -91,7 +106,7 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 				}
 
 				// Create the discovery listener
-				discoveryListener = new NsdManager.DiscoveryListener() {
+				final NsdManager.DiscoveryListener discoveryListener = new NsdManager.DiscoveryListener() {
 					@Override public void onStartDiscoveryFailed(String serviceType, int errorCode) {
 						subscriber.onError(new DiscoveryFailed(JBBonjourDiscovery.class, serviceType, errorCode));
 					}
@@ -118,43 +133,60 @@ public final class JBBonjourDiscovery extends BonjourDiscovery {
 					}
 				};
 
-				// Create the resolver backlog
-				resolveBacklog = new Backlog<NsdServiceInfo>() {
-					@Override public void onNext(NsdServiceInfo info) {
-						// Resolve this service info using the corresponding listener
-						nsdManager.resolveService(info, new NsdManager.ResolveListener() {
-							@Override public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
-							}
+				// Obtain the NSD manager
+				final NsdManager nsdManager = getNsdManager(context);
 
-							@Override public void onServiceResolved(NsdServiceInfo serviceInfo) {
-								if (!subscriber.isUnsubscribed()) {
-									subscriber.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, serviceInfo));
+				// Create the resolver backlog
+				if (resolveBacklog == null) {
+					resolveBacklog = new Backlog<NsdServiceInfo>() {
+						@Override public void onNext(NsdServiceInfo info) {
+							// Resolve this service info using the corresponding listener
+							nsdManager.resolveService(info, new NsdManager.ResolveListener() {
+								@Override public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
 								}
 
-								// Inform the backlog to continue processing
-								resolveBacklog.proceed();
-							}
-						});
-					}
-				};
+								@Override public void onServiceResolved(NsdServiceInfo serviceInfo) {
+									if (!subscriber.isUnsubscribed()) {
+										subscriber.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, serviceInfo));
+									}
 
-				// Obtain the NSD manager and start discovering once received
-				nsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
-				nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
-			}
-		});
+									// Inform the backlog to continue processing
+									resolveBacklog.proceed();
+								}
+							});
+						}
+					};
+				}
 
-		// Add schedulers and an unsubscribe action to stop service discovery and return the observable
-		return obs
-				.doOnUnsubscribe(new Action0() {
-					@Override public void call() {
+				// Add onUnsubscribe() hook
+				subscriber.add(new MainThreadSubscription() {
+					@Override protected void onUnsubscribe() {
 						try {
-							resolveBacklog.quit();
 							nsdManager.stopServiceDiscovery(discoveryListener);
+							subscriberCount--;
+
 						} catch (Exception ignored) {
 							// "Service discovery not active on discoveryListener", thrown if starting the service discovery was unsuccessful earlier
+
+						} finally {
+							synchronized (nsdManagerLock) {
+								if (subscriberCount <= 0) {
+									resolveBacklog.quit();
+									resolveBacklog = null;
+									nsdManagerInstance = null;
+								}
+							}
 						}
 					}
 				});
+
+				// Start discovery
+				nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+				subscriberCount++;
+			}
+		});
+
+		// Share the observable to have multiple subscribers receive the same results emitted by the single DiscoveryListener
+		return obs.share();
 	}
 }

@@ -7,16 +7,21 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetAddress;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
+import javax.jmdns.impl.DNSIncoming;
+import javax.jmdns.impl.constants.DNSRecordClass;
+import javax.jmdns.impl.constants.DNSRecordType;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
+import rxbonjour.exc.DiscoveryFailed;
 import rxbonjour.exc.StaleContextException;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
@@ -24,10 +29,16 @@ import rxbonjour.model.BonjourService;
 /**
  * Support implementation for Bonjour service discovery on pre-Jelly Bean devices,
  * utilizing Android's WifiManager and the JmDNS library for lookups.
- *
- * @author marcel
  */
-public final class SupportBonjourDiscovery extends BonjourDiscovery {
+public final class SupportBonjourDiscovery implements BonjourDiscovery {
+
+	static {
+		// Disable logging for some JmDNS classes, since those severely clutter log output
+		Logger.getLogger(DNSIncoming.class.getName()).setLevel(Level.OFF);
+		Logger.getLogger(DNSRecordType.class.getName()).setLevel(Level.OFF);
+		Logger.getLogger(DNSRecordClass.class.getName()).setLevel(Level.OFF);
+		Logger.getLogger(DNSIncoming.MessageInputStream.class.getName()).setLevel(Level.OFF);
+	}
 
 	/** Suffix appended to input types */
 	private static final String SUFFIX = ".local.";
@@ -35,16 +46,15 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 	/** Tag to associate with the multicast lock */
 	private static final String LOCK_TAG = "RxBonjourDiscovery";
 
-	/** Multicast lock acquired by the device */
-	private WifiManager.MulticastLock lock;
-	/** JmDNS used to search for services */
-	private JmDNS jmdns;
-	/** Listener to notify about services */
-	private ServiceListener listener;
+	/** The JmDNS instance used for discovery, shared among subscribers */
+	private JmDNS jmdnsInstance;
+	/** Synchronization lock on the JmDNS instance */
+	private final Object jmdnsLock = new Object();
+	/** Number of subscribers listening to Bonjour events */
+	private int subscriberCount = 0;
 
 	/**
 	 * Constructor
-	 *
 	 */
 	public SupportBonjourDiscovery() {
 		super();
@@ -100,6 +110,23 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 		return InetAddress.getByAddress(byteaddr);
 	}
 
+	/**
+	 * Returns the JmDNS shared among all subscribers for Bonjour events, creating it if necessary.
+	 *
+	 * @param wifiManager WifiManager used to access the device's IP address with which JmDNS is initialized
+	 * @return The JmDNS instance
+	 * @throws IOException In case the device's address can't be resolved
+	 */
+	private JmDNS getJmdns(WifiManager wifiManager) throws IOException {
+		synchronized (jmdnsLock) {
+			if (jmdnsInstance == null) {
+				InetAddress inetAddress = getInetAddress(wifiManager);
+				jmdnsInstance = JmDNS.create(inetAddress, inetAddress.toString());
+			}
+			return jmdnsInstance;
+		}
+	}
+
 	/* Begin overrides */
 
 	@Override public Observable<BonjourEvent> start(Context context, final String type) {
@@ -109,7 +136,7 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 		// Create a weak reference to the incoming Context
 		final WeakReference<Context> weakContext = new WeakReference<>(context);
 
-		Observable<BonjourEvent> obs = Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
+		return Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
 			@Override public void call(final Subscriber<? super BonjourEvent> subscriber) {
 				Context context = weakContext.get();
 				if (context == null) {
@@ -118,7 +145,7 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 				}
 
 				// Create the service listener
-				listener = new ServiceListener() {
+				final ServiceListener listener = new ServiceListener() {
 					@Override public void serviceAdded(ServiceEvent event) {
 						event.getDNS().requestServiceInfo(event.getType(), event.getName());
 					}
@@ -136,49 +163,61 @@ public final class SupportBonjourDiscovery extends BonjourDiscovery {
 					}
 				};
 
-				// Obtain the multicast lock from the Wifi Manager and acquire it
+				// Obtain a multicast lock from the Wifi Manager and acquire it
 				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-				lock = wifiManager.createMulticastLock(LOCK_TAG);
+				final WifiManager.MulticastLock lock = wifiManager.createMulticastLock(LOCK_TAG);
 				lock.setReferenceCounted(true);
 				lock.acquire();
 
 				// Obtain the current IP address and initialize JmDNS' discovery service with that
 				try {
-					InetAddress inetAddress = getInetAddress(wifiManager);
-					jmdns = JmDNS.create(inetAddress, inetAddress.toString());
+					final JmDNS jmdns = getJmdns(wifiManager);
+
+					// Add onUnsubscribe() hook
+					subscriber.add(new MainThreadSubscription() {
+						@Override protected void onUnsubscribe() {
+							// Release the lock and clean up the JmDNS client
+							jmdns.removeServiceListener(dnsType, listener);
+							subscriberCount--;
+
+							Observable<Void> cleanUpObservable = Observable.create(new Observable.OnSubscribe<Void>() {
+								@Override public void call(final Subscriber<? super Void> subscriber) {
+									// Release the held multicast lock
+									lock.release();
+
+									// Close the JmDNS instance if no more subscribers remain
+									if (subscriberCount <= 0) {
+										// This call blocks, which is why it is running on a computation thread
+										try {
+											jmdns.close();
+										} catch (IOException ignored) {
+										} finally {
+											synchronized (jmdnsLock) {
+												jmdnsInstance = null;
+												subscriberCount = 0;
+											}
+										}
+									}
+
+									// Unsubscribe from the observable automatically
+									subscriber.unsubscribe();
+								}
+							});
+							cleanUpObservable
+									.subscribeOn(Schedulers.computation())
+									.observeOn(Schedulers.computation())
+									.subscribe();
+						}
+					});
+
+					// Start discovery
 					jmdns.addServiceListener(dnsType, listener);
+					subscriberCount++;
 
 				} catch (IOException e) {
-					subscriber.onError(e);
+					subscriber.onError(new DiscoveryFailed(SupportBonjourDiscovery.class, dnsType));
 				}
 			}
 		});
-
-		// Add an unsubscribe action releasing the multicast lock, then return the Observable
-		return obs
-				.doOnUnsubscribe(new Action0() {
-					@Override public void call() {
-						// Release the lock and clean up the JmDNS client
-						jmdns.removeServiceListener(dnsType, listener);
-						Observable<Void> cleanUpObservable = Observable.create(new Observable.OnSubscribe<Void>() {
-							@Override public void call(final Subscriber<? super Void> subscriber) {
-								// Close the JmDNS instance and release the multicast lock
-								// (do this asynchronously because JmDNS.close() blocks)
-								try {
-									jmdns.close();
-								} catch (IOException ignored) {
-								}
-								lock.release();
-
-								// Unsubscribe from the observable automatically
-								subscriber.unsubscribe();
-							}
-						});
-						cleanUpObservable
-							.subscribeOn(Schedulers.io())
-							.observeOn(Schedulers.io())
-							.subscribe();
-					}
-				});
 	}
 }
