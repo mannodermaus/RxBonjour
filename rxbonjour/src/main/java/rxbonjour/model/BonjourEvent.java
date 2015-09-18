@@ -1,13 +1,15 @@
 package rxbonjour.model;
 
 /**
- * @author marcel
+ * Event container class broadcast by {@link rxbonjour.internal.BonjourDiscovery} implementations.
+ * Contains Bonjour service data, as well as information on whether the service was just discovered
+ * or lost.
  */
 public class BonjourEvent {
 
 	public enum Type {
 		ADDED,
-		REMOVED;
+		REMOVED
 	}
 
 	private Type mType;
@@ -28,8 +30,8 @@ public class BonjourEvent {
 
 	@Override public String toString() {
 		return "BonjourEvent{" +
-				"mType=" + mType +
-				", mService=" + mService +
+				"type=" + mType +
+				", service=" + mService +
 				'}';
 	}
 

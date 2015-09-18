@@ -1,7 +1,7 @@
 package rxbonjour.exc;
 
 /**
- * @author marcel
+ * Thrown when a Context reference becomes stale
  */
 public class StaleContextException extends RuntimeException {
 

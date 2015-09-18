@@ -1,7 +1,7 @@
 package rxbonjour.exc;
 
 /**
- * @author marcel
+ * Thrown when a requested type doesn't conform to the DNS-SD format
  */
 public class TypeMalformedException extends RuntimeException {
 

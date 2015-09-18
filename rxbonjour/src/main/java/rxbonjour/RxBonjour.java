@@ -16,8 +16,6 @@ import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 /**
  * RxBonjour:
  * Enables clients to perform network service discovery for Bonjour devices using Reactive Extensions.
- *
- * @author marcel
  */
 public final class RxBonjour {
 

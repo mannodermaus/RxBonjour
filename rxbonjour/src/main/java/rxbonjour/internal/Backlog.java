@@ -12,8 +12,6 @@ import rx.subjects.BehaviorSubject;
 /**
  * Backlog manager class, polling objects and processing them until an external object calls
  * {@link #proceed()}.
- *
- * @author marcel
  */
 public abstract class Backlog<T> {
 

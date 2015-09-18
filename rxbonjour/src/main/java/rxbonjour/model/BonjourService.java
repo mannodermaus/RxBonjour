@@ -10,8 +10,6 @@ import java.net.InetAddress;
 
 /**
  * Resolved Bonjour service detected within the device's local network.
- *
- * @author marcel
  */
 public class BonjourService {
 
@@ -122,11 +120,11 @@ public class BonjourService {
 
 	@Override public String toString() {
 		return "BonjourService{" +
-				"mName='" + mName + '\'' +
-				", mType='" + mType + '\'' +
-				", mV4Host=" + mV4Host +
-				", mV6Host=" + mV6Host +
-				", mPort=" + mPort +
+				"name='" + mName + '\'' +
+				", type='" + mType + '\'' +
+				", v4Host=" + mV4Host +
+				", v6Host=" + mV6Host +
+				", port=" + mPort +
 				'}';
 	}
 
