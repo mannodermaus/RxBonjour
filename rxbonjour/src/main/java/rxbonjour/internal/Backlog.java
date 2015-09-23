@@ -33,8 +33,7 @@ public abstract class Backlog<T> {
 	public Backlog() {
 		subject = BehaviorSubject.create();
 		subscription = subject
-				.observeOn(Schedulers.io())
-				.subscribeOn(Schedulers.io())
+				.compose(BonjourSchedulers.<Void>backlogSchedulers())
 				.subscribe(new Action1<Void>() {
 					@Override public void call(Void aVoid) {
 						try {

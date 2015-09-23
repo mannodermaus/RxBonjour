@@ -3,10 +3,9 @@ package rxbonjour;
 import android.content.Context;
 import android.os.Build;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rxbonjour.exc.TypeMalformedException;
 import rxbonjour.internal.BonjourDiscovery;
+import rxbonjour.internal.BonjourSchedulers;
 import rxbonjour.internal.JBBonjourDiscovery;
 import rxbonjour.internal.SupportBonjourDiscovery;
 import rxbonjour.model.BonjourEvent;
@@ -80,8 +79,7 @@ public final class RxBonjour {
 
 		// Create the discovery Observable and pre-configure it
 		return discovery.start(context, type)
-				.subscribeOn(Schedulers.io())
-				.observeOn(AndroidSchedulers.mainThread());
+				.compose(BonjourSchedulers.<BonjourEvent>startSchedulers());
 	}
 
 	/**

@@ -204,8 +204,7 @@ public final class SupportBonjourDiscovery implements BonjourDiscovery {
 								}
 							});
 							cleanUpObservable
-									.subscribeOn(Schedulers.computation())
-									.observeOn(Schedulers.computation())
+									.compose(BonjourSchedulers.cleanupSchedulers())
 									.subscribe();
 						}
 					});

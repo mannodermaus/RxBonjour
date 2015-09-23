@@ -9,17 +9,21 @@ android {
         targetSdkVersion TARGET_SDK_VERSION
         versionName VERSION_NAME
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
-    // Support annotations
-    compile "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"
+    compile "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"      // Support annotations
+    compile "io.reactivex:rxandroid:$RXANDROID_VERSION"                             // Reactive extensions
+    compile fileTree(dir: "libs", include: "jmdns-${JMDNS_JAR_VERSION}.jar")        // Network Service Discovery (pre-JB)
 
-    // Reactive extensions
-    compile "io.reactivex:rxandroid:$RXANDROID_VERSION"
-
-    // Network Service Discovery (pre-JB)
-    compile fileTree(dir: "libs", include: "jmdns-${JMDNS_JAR_VERSION}.jar")
+    testCompile "junit:junit:${JUNIT_VERSION}"                                      // Unit Testing
+    testCompile "org.mockito:mockito-core:${MOCKITO_VERSION}"                       // Mocking Framework
+    testCompile "org.powermock:powermock-api-mockito:${POWERMOCK_VERSION}"          // Mocking Framework extensions
+    testCompile "org.powermock:powermock-module-junit4:${POWERMOCK_VERSION}"        // Mocking Framework extensions
 }
 
 afterEvaluate {
