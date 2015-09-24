@@ -139,7 +139,7 @@ public final class JBBonjourDiscovery implements BonjourDiscovery {
 				// Create the resolver backlog
 				if (resolveBacklog == null) {
 					resolveBacklog = new Backlog<NsdServiceInfo>() {
-						@Override public void onNext(NsdServiceInfo info) {
+						@Override public void onNext(Backlog<NsdServiceInfo> backlog, NsdServiceInfo info) {
 							// Resolve this service info using the corresponding listener
 							nsdManager.resolveService(info, new NsdManager.ResolveListener() {
 								@Override public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {

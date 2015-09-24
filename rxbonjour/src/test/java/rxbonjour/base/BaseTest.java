@@ -26,7 +26,7 @@ public abstract class BaseTest {
 
 	@Before public final void beforeTests() throws Exception {
 		mockStatic(BonjourSchedulers.class);
-		given(BonjourSchedulers.backlogSchedulers()).willReturn(TestSchedulers.immediateSchedulers());
+		given(BonjourSchedulers.backlogSchedulers()).willReturn(TestSchedulers.backlogSchedulers());
 		given(BonjourSchedulers.cleanupSchedulers()).willReturn(TestSchedulers.immediateSchedulers());
 		given(BonjourSchedulers.startSchedulers()).willReturn(TestSchedulers.immediateSchedulers());
 
