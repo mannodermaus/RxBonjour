@@ -65,6 +65,19 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 		verify(jmdns, times(1)).close();
 	}
 
+	@Test public void testAddAndRemoveOneCycleWithLocalDomain() throws Exception {
+		BonjourDiscovery discovery = new SupportBonjourDiscovery();
+		TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
+
+		discovery.start(context, "_http._tcp.local.").subscribe(subscriber);
+
+		subscriber.assertNoErrors();
+		verify(jmdns, times(1)).addServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
+		subscriber.unsubscribe();
+		verify(jmdns, times(1)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
+		verify(jmdns, times(1)).close();
+	}
+
 	@Test public void testAddAndRemoveTwoCycle() throws Exception {
 		BonjourDiscovery discovery = new SupportBonjourDiscovery();
 		TestSubscriber<BonjourEvent> subscriber1 = new TestSubscriber<>();

@@ -20,7 +20,6 @@ import javax.jmdns.impl.constants.DNSRecordType;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.schedulers.Schedulers;
 import rxbonjour.exc.DiscoveryFailed;
 import rxbonjour.exc.StaleContextException;
 import rxbonjour.model.BonjourEvent;
@@ -131,7 +130,7 @@ public final class SupportBonjourDiscovery implements BonjourDiscovery {
 
 	@Override public Observable<BonjourEvent> start(Context context, final String type) {
 		// Append ".local." suffix in order to have JmDNS pick up on the services
-		final String dnsType = type + SUFFIX;
+		final String dnsType = (type.endsWith(SUFFIX)) ? type : type + SUFFIX;
 
 		// Create a weak reference to the incoming Context
 		final WeakReference<Context> weakContext = new WeakReference<>(context);

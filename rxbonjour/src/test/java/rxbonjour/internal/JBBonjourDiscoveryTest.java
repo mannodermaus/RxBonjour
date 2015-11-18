@@ -43,6 +43,18 @@ public class JBBonjourDiscoveryTest extends BaseTest {
 		verify(nsdManager, times(1)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
 	}
 
+	@Test public void testAddAndRemoveOneCycleWithLocalDomain() throws Exception {
+		BonjourDiscovery discovery = new JBBonjourDiscovery();
+		TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
+
+		discovery.start(context, "_http._tcp.local.").subscribe(subscriber);
+
+		subscriber.assertNoErrors();
+		verify(nsdManager, times(1)).discoverServices(eq("_http._tcp.local."), anyInt(), any(NsdManager.DiscoveryListener.class));
+		subscriber.unsubscribe();
+		verify(nsdManager, times(1)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
+	}
+
 	@Test public void testAddAndRemoveTwoCycle() throws Exception {
 		BonjourDiscovery discovery = new JBBonjourDiscovery();
 		TestSubscriber<BonjourEvent> subscriber1 = new TestSubscriber<>();

@@ -15,6 +15,7 @@ public class RxBonjourTest extends BaseTest {
 		assertEquals(true, RxBonjour.isBonjourType("_ssh._udp"));
 		assertEquals(true, RxBonjour.isBonjourType("_xmpp-server._tcp"));
 		assertEquals(true, RxBonjour.isBonjourType("_printer._tcp"));
+		assertEquals(true, RxBonjour.isBonjourType("_somelocalservice._tcp.local."));
 
 		assertEquals(false, RxBonjour.isBonjourType("_invalid§/(chars._tcp"));
 		assertEquals(false, RxBonjour.isBonjourType("_http._invalidprotocol"));
