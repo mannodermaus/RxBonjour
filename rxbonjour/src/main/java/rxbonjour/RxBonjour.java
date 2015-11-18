@@ -18,7 +18,7 @@ import static android.os.Build.VERSION_CODES.JELLY_BEAN;
  */
 public final class RxBonjour {
 
-	private static final String TYPE_PATTERN = "_[a-zA-Z0-9\\-]+.(_tcp|_udp)";
+	private static final String TYPE_PATTERN = "_[a-zA-Z0-9\\-]+\\.(_tcp|_udp)(\\.[a-zA-Z0-9\\-]+\\.)?";
 
 	private RxBonjour() {
 		throw new AssertionError("no instances");
