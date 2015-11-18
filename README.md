@@ -8,7 +8,7 @@ Disclaimer: This library is to be considered **very early** in terms of maturity
 `RxBonjour` is available on `jcenter()`:
 
 ```groovy
-compile 'com.github.aurae:rxbonjour:0.3.1'
+compile 'com.github.aurae:rxbonjour:0.3.2'
 ```
 
 ## Usage
