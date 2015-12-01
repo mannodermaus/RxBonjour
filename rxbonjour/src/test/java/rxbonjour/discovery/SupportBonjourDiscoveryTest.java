@@ -1,4 +1,4 @@
-package rxbonjour.internal;
+package rxbonjour.discovery;
 
 import android.content.Context;
 import android.net.wifi.WifiInfo;

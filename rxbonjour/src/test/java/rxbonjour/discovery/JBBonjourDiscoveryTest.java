@@ -1,4 +1,4 @@
-package rxbonjour.internal;
+package rxbonjour.discovery;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import rx.observers.TestSubscriber;
 import rxbonjour.base.BaseTest;
+import rxbonjour.discovery.BonjourDiscovery;
+import rxbonjour.discovery.JBBonjourDiscovery;
 import rxbonjour.exc.StaleContextException;
 import rxbonjour.model.BonjourEvent;
 

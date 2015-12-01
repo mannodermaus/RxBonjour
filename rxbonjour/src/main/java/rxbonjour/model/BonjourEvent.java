@@ -1,7 +1,9 @@
 package rxbonjour.model;
 
+import rxbonjour.discovery.BonjourDiscovery;
+
 /**
- * Event container class broadcast by {@link rxbonjour.internal.BonjourDiscovery} implementations.
+ * Event container class broadcast by {@link BonjourDiscovery} implementations.
  * Contains Bonjour service data, as well as information on whether the service was just discovered
  * or lost.
  */

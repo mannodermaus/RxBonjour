@@ -1,4 +1,4 @@
-package rxbonjour.internal;
+package rxbonjour.discovery;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -15,8 +16,11 @@ import rxbonjour.exc.DiscoveryFailed;
 
 import rx.Observable;
 import rxbonjour.exc.StaleContextException;
+import rxbonjour.internal.Backlog;
+import rxbonjour.internal.MainThreadSubscription;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
+import rxbonjour.utils.JBUtils;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
@@ -25,19 +29,16 @@ import static android.os.Build.VERSION_CODES.LOLLIPOP;
  * Bonjour implementation for Jelly-Bean and up, utilizing the NsdManager APIs.
  */
 @TargetApi(JELLY_BEAN)
-public final class JBBonjourDiscovery implements BonjourDiscovery {
+final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
 
-	/** Discovery listener fed into the NsdManager */
-//	private NsdManager.DiscoveryListener discoveryListener;
-
-	/** NsdManager instance used for discovery, shared among subscribers */
-	private NsdManager nsdManagerInstance;
-	/** Synchronization lock on the NsdManager instance */
-	private final Object nsdManagerLock = new Object();
-	/** Number of subscribers listening to Bonjour events */
+	/**
+	 * Number of subscribers listening to Bonjour events
+	 */
 	private int subscriberCount = 0;
 
-	/** Resolver backlog, necessary because of NsdManager's "one resolve at a time" limitation */
+	/**
+	 * Resolver backlog, necessary because of NsdManager's "one resolve at a time" limitation
+	 */
 	private Backlog<NsdServiceInfo> resolveBacklog;
 
 	/**
@@ -45,6 +46,10 @@ public final class JBBonjourDiscovery implements BonjourDiscovery {
 	 */
 	public JBBonjourDiscovery() {
 		super();
+	}
+
+	@Override protected JBUtils createUtils() {
+		return JBUtils.get();
 	}
 
 	/* Begin private */
@@ -74,21 +79,6 @@ public final class JBBonjourDiscovery implements BonjourDiscovery {
 
 		// Create and return an event wrapping the BonjourService
 		return new BonjourEvent(type, serviceBuilder.build());
-	}
-
-	/**
-	 * Returns the NsdManager shared among all subscribers for Bonjour events, creating it if necessary.
-	 *
-	 * @param context Context used to access the NsdManager
-	 * @return The NsdManager instance
-	 */
-	private NsdManager getNsdManager(Context context) {
-		synchronized (nsdManagerLock) {
-			if (nsdManagerInstance == null) {
-				nsdManagerInstance = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
-			}
-			return nsdManagerInstance;
-		}
 	}
 
 	/* Begin overrides */
@@ -134,7 +124,14 @@ public final class JBBonjourDiscovery implements BonjourDiscovery {
 				};
 
 				// Obtain the NSD manager
-				final NsdManager nsdManager = getNsdManager(context);
+				final NsdManager nsdManager;
+				try {
+					nsdManager = utils.getManager(context);
+				} catch (IOException e) {
+					if (subscriber.isUnsubscribed()) return;
+					subscriber.onError(e);
+					return;
+				}
 
 				// Create the resolver backlog
 				if (resolveBacklog == null) {
@@ -169,12 +166,9 @@ public final class JBBonjourDiscovery implements BonjourDiscovery {
 							// "Service discovery not active on discoveryListener", thrown if starting the service discovery was unsuccessful earlier
 
 						} finally {
-							synchronized (nsdManagerLock) {
-								if (subscriberCount <= 0) {
-									resolveBacklog.quit();
-									resolveBacklog = null;
-									nsdManagerInstance = null;
-								}
+							if (subscriberCount <= 0) {
+								resolveBacklog.quit();
+								resolveBacklog = null;
 							}
 						}
 					}
