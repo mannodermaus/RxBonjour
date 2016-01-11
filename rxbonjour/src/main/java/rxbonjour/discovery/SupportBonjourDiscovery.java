@@ -48,9 +48,6 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
 	/** Tag to associate with the multicast lock */
 	private static final String LOCK_TAG = "RxBonjourDiscovery";
 
-	/** Number of subscribers listening to Bonjour events */
-	private int subscriberCount = 0;
-
 	/**
 	 * Constructor
 	 */
@@ -146,7 +143,7 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
 						@Override protected void onUnsubscribe() {
 							// Release the lock and clean up the JmDNS client
 							jmdns.removeServiceListener(dnsType, listener);
-							subscriberCount--;
+							utils.decrementSubscriberCount();
 
 							Observable<Void> cleanUpObservable = Observable.create(new Observable.OnSubscribe<Void>() {
 								@Override public void call(final Subscriber<? super Void> subscriber) {
@@ -154,15 +151,7 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
 									lock.release();
 
 									// Close the JmDNS instance if no more subscribers remain
-									if (subscriberCount <= 0) {
-										// This call blocks, which is why it is running on a computation thread
-										try {
-											jmdns.close();
-										} catch (IOException ignored) {
-										} finally {
-											subscriberCount = 0;
-										}
-									}
+									utils.closeIfNecessary();
 
 									// Unsubscribe from the observable automatically
 									subscriber.unsubscribe();
@@ -176,7 +165,7 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
 
 					// Start discovery
 					jmdns.addServiceListener(dnsType, listener);
-					subscriberCount++;
+					utils.incrementSubscriberCount();
 
 				} catch (IOException e) {
 					subscriber.onError(new DiscoveryFailed(SupportBonjourDiscovery.class, dnsType));
