@@ -65,7 +65,7 @@ The support implementation utilizes the latest available version of [jmDNS][jmdn
 
 ## License
 
-	Copyright 2015 Marcel Schnelle
+	Copyright 2016 Marcel Schnelle
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
