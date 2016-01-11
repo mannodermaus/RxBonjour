@@ -20,13 +20,13 @@ import javax.jmdns.impl.constants.DNSRecordType;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.MainThreadSubscription;
 import rxbonjour.exc.DiscoveryFailed;
 import rxbonjour.exc.StaleContextException;
 import rxbonjour.internal.BonjourSchedulers;
-import rxbonjour.internal.MainThreadSubscription;
-import rxbonjour.utils.SupportUtils;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
+import rxbonjour.utils.SupportUtils;
 
 /**
  * Support implementation for Bonjour service discovery on pre-Jelly Bean devices,

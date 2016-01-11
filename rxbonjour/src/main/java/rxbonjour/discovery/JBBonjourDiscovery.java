@@ -11,13 +11,12 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import rx.Subscriber;
-import rxbonjour.exc.DiscoveryFailed;
-
 import rx.Observable;
+import rx.Subscriber;
+import rx.android.MainThreadSubscription;
+import rxbonjour.exc.DiscoveryFailed;
 import rxbonjour.exc.StaleContextException;
 import rxbonjour.internal.Backlog;
-import rxbonjour.internal.MainThreadSubscription;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
 import rxbonjour.utils.JBUtils;
