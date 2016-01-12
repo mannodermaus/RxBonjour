@@ -96,9 +96,13 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
 		int txtRecordCount = serviceInfo.getTxtRecordCount();
 		Bundle txtRecordBundle = serviceInfo.getTxtRecords();
 		Map<String, String> txtRecordMap = new HashMap<>(txtRecordCount);
-		for (String key : txtRecordBundle.keySet()) {
-			txtRecordMap.put(key, txtRecordBundle.getString(key));
+
+		if (txtRecordBundle.size() > 0) {
+			for (String key : txtRecordBundle.keySet()) {
+				txtRecordMap.put(key, txtRecordBundle.getString(key));
+			}
 		}
+
 		return ServiceInfo.create(
 				serviceInfo.getType(),
 				serviceInfo.getName(),
