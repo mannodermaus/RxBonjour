@@ -14,6 +14,7 @@ public final class JBUtils extends BonjourUtils<NsdManager> {
 
 	/** NsdManager instance used for discovery, shared among subscribers */
 	private NsdManager nsdManagerInstance;
+
 	/** Synchronization lock on the NsdManager instance */
 	private final Object nsdManagerLock = new Object();
 

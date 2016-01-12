@@ -3,33 +3,18 @@ package rxbonjour.broadcast;
 import android.support.annotation.Nullable;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BonjourBroadcastBuilder {
 
-	private static final InetAddress DEFAULT_ADDRESS;
 	private static final String DEFAULT_NAME = "RxBonjour Service";
 	private static final int DEFAULT_PORT = 80;
-
-	static {
-		InetAddress defaultAddress = null;
-		try {
-			defaultAddress = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			try {
-				defaultAddress = InetAddress.getByName("127.0.0.1");
-			} catch (UnknownHostException ignored) {
-			}
-		}
-		DEFAULT_ADDRESS = defaultAddress;
-	}
 
 	private final String type;
 	private Map<String, String> txtRecords;
 	private String name = DEFAULT_NAME;
-	private InetAddress address = DEFAULT_ADDRESS;
+	private InetAddress address;
 	private int port = DEFAULT_PORT;
 
 	protected BonjourBroadcastBuilder(String type) {
