@@ -15,7 +15,7 @@ import rxbonjour.model.BonjourEvent;
  */
 public final class RxBonjour {
 
-	private static final String TYPE_PATTERN = "_[a-zA-Z0-9\\-]+\\.(_tcp|_udp)(\\.[a-zA-Z0-9\\-]+\\.)?";
+	private static final String TYPE_PATTERN = "_[a-zA-Z0-9\\-_]+\\.(_tcp|_udp)(\\.[a-zA-Z0-9\\-]+\\.)?";
 
 	private RxBonjour() {
 		throw new AssertionError("no instances");

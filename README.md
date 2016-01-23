@@ -8,7 +8,7 @@ Disclaimer: This library is to be considered **very early** in terms of maturity
 `RxBonjour` is available on `jcenter()`:
 
 ```groovy
-compile 'com.github.aurae:rxbonjour:0.3.2'
+compile 'com.github.aurae:rxbonjour:0.3.3'
 ```
 
 ## Usage
@@ -65,7 +65,7 @@ The support implementation utilizes the latest available version of [jmDNS][jmdn
 
 ## License
 
-	Copyright 2015 Marcel Schnelle
+	Copyright 2016 Marcel Schnelle
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
