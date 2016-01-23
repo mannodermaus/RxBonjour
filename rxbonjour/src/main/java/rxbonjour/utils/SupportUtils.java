@@ -5,19 +5,25 @@ import android.net.wifi.WifiManager;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jmdns.JmDNS;
+import javax.jmdns.impl.DNSStatefulObject;
 
 /**
  * Helper class to acquire some of the support implementation's common objects.
  */
-public final class SupportUtils implements BonjourUtils<JmDNS> {
+public final class SupportUtils extends BonjourUtils<JmDNS> {
 
 	private static SupportUtils instance;
 
 	private JmDNS jmdnsInstance;
+
 	/** Synchronization lock on the JmDNS instance */
 	private final Object jmdnsLock = new Object();
+
+	/** Number of subscribers using JmDNS */
+	private final AtomicInteger jmdnsSubscriberCount = new AtomicInteger(0);
 
 	private SupportUtils() {
 		//no instance
@@ -39,29 +45,74 @@ public final class SupportUtils implements BonjourUtils<JmDNS> {
 	 */
 	@Override public JmDNS getManager(Context context) throws IOException {
 		synchronized (jmdnsLock) {
-			if (jmdnsInstance == null) {
+			if (jmdnsInstance == null || !isAvailable()) {
 				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 				InetAddress inetAddress = getInetAddress(wifiManager);
 				jmdnsInstance = JmDNS.create(inetAddress, inetAddress.toString());
+				jmdnsSubscriberCount.set(0);
 			}
 			return jmdnsInstance;
 		}
 	}
 
 	/**
-	 * Returns the current connection's IP address.
-	 * This implementation is taken from http://stackoverflow.com/a/13677686/1143172
-	 * and takes note of a JmDNS issue with resolved IP addresses.
-	 *
-	 * @param wifiManager WifiManager to look up the IP address from
-	 * @return The InetAddress of the current connection
-	 * @throws IOException In case the InetAddress can't be resolved
-	 */
-	private InetAddress getInetAddress(WifiManager wifiManager) throws IOException {
-		int intaddr = wifiManager.getConnectionInfo().getIpAddress();
+	 * Returns whether the JmDNS instance is not closing or closed.
+     */
+	private boolean isAvailable() {
+		if (jmdnsInstance != null) {
+			DNSStatefulObject dso = (DNSStatefulObject) jmdnsInstance;
+			return !(dso.isClosing() || dso.isClosed());
+		}
 
-		byte[] byteaddr = new byte[] { (byte) (intaddr & 0xff), (byte) (intaddr >> 8 & 0xff),
-				(byte) (intaddr >> 16 & 0xff), (byte) (intaddr >> 24 & 0xff) };
-		return InetAddress.getByAddress(byteaddr);
+		return false;
+	}
+
+	/**
+	 * Increments the count of JmDNS subscribers.
+	 *
+	 * @return The updated subscriber count
+     */
+	public int incrementSubscriberCount() {
+		if (isAvailable()) {
+			return jmdnsSubscriberCount.incrementAndGet();
+		}
+		return 0;
+	}
+
+	/**
+	 * Decrements the count of JmDNS subscribers.
+	 *
+	 * @return The updated subscriber count
+     */
+	public int decrementSubscriberCount() {
+		if (isAvailable()) {
+			return jmdnsSubscriberCount.decrementAndGet();
+		}
+		return 0;
+	}
+
+	/**
+	 * Closes the JmDNS instance if there are no longer any subscribers.
+	 */
+	public void closeIfNecessary() {
+		if (jmdnsInstance != null) {
+			if (jmdnsSubscriberCount.get() <= 0) {
+				close();
+			}
+		}
+	}
+
+	/**
+	 * Closes the JmDNS instance.
+	 */
+	public void close() {
+		if (jmdnsInstance != null) {
+			try {
+				jmdnsInstance.close();
+			} catch (IOException ignored) {
+			} finally {
+				jmdnsSubscriberCount.set(0);
+			}
+		}
 	}
 }

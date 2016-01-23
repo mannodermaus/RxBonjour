@@ -8,12 +8,13 @@ import android.os.Build;
 import java.io.IOException;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-public final class JBUtils implements BonjourUtils<NsdManager> {
+public final class JBUtils extends BonjourUtils<NsdManager> {
 
 	private static JBUtils instance;
 
 	/** NsdManager instance used for discovery, shared among subscribers */
 	private NsdManager nsdManagerInstance;
+
 	/** Synchronization lock on the NsdManager instance */
 	private final Object nsdManagerLock = new Object();
 
