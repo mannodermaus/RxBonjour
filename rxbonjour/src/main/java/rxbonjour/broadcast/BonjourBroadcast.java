@@ -16,18 +16,26 @@ import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 
 public abstract class BonjourBroadcast<T extends BonjourUtils<?>> {
 
-	protected final BonjourBroadcastBuilder broadcastBuilder;
+	protected final InetAddress address;
+	protected final String name;
+	protected final String type;
+	protected final int port;
+	protected final Map<String, String> txtRecords;
 	protected final T utils;
 
 	protected BonjourBroadcast(BonjourBroadcastBuilder builder) {
-		broadcastBuilder = builder;
+		this.address = builder.address();
+		this.name = builder.name();
+		this.type = builder.type();
+		this.port = builder.port();
+		this.txtRecords = builder.txtRecords();
 
 		// Create the utilities reference
 		this.utils = createUtils();
 	}
 
 	protected BonjourService createBonjourService(Context context) throws IOException {
-		InetAddress ia = broadcastBuilder.address();
+		InetAddress ia = this.address;
 
 		if (ia == null) {
 			WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -35,12 +43,10 @@ public abstract class BonjourBroadcast<T extends BonjourUtils<?>> {
 		}
 
 		// Create a BonjourService object with the builder's properties
-		BonjourService.Builder serviceBuilder = new BonjourService.Builder(broadcastBuilder.name(),
-				broadcastBuilder.type())
-				.setPort(broadcastBuilder.port())
+		BonjourService.Builder serviceBuilder = new BonjourService.Builder(name, type)
+				.setPort(port)
 				.addAddress(ia);
 
-		Map<String, String> txtRecords = broadcastBuilder.txtRecords();
 		if (txtRecords != null) {
 			for (String key : txtRecords.keySet()) {
 				serviceBuilder.addTxtRecord(key, txtRecords.get(key));

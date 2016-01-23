@@ -8,7 +8,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
@@ -46,9 +45,8 @@ public class JBBonjourBroadcastTest extends BaseTest {
 
     @Test public void testAddAndRemoveOneCycle() throws Exception {
         BonjourBroadcastBuilder builder = PowerMockito.spy(JBBonjourBroadcast.newBuilder("_http._tcp"));
-        BonjourBroadcast broadcast = new JBBonjourBroadcast(builder);
+        BonjourBroadcast<?> broadcast = builder.build();
         TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
-        ArgumentCaptor<NsdServiceInfo> captor = ArgumentCaptor.forClass(NsdServiceInfo.class);
 
         broadcast.start(context).subscribe(subscriber);
         subscriber.assertNoErrors();
@@ -61,7 +59,7 @@ public class JBBonjourBroadcastTest extends BaseTest {
 
     @Test public void testStaleContext() throws Exception {
         BonjourBroadcastBuilder builder = PowerMockito.spy(JBBonjourBroadcast.newBuilder("_http._tcp"));
-        BonjourBroadcast broadcast = new JBBonjourBroadcast(builder);
+        BonjourBroadcast<?> broadcast = new JBBonjourBroadcast(builder);
         TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
 
         broadcast.start(null).subscribe(subscriber);

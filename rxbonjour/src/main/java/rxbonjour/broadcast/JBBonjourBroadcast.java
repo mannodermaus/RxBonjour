@@ -89,7 +89,7 @@ final class JBBonjourBroadcast extends BonjourBroadcast<JBUtils> {
 						}
 					});
 				} catch (IOException e) {
-					subscriber.onError(new BroadcastFailed(JBBonjourBroadcast.class, broadcastBuilder.type()));
+					subscriber.onError(new BroadcastFailed(JBBonjourBroadcast.class, type));
 				}
 			}
 		});

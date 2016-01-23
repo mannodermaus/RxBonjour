@@ -10,8 +10,6 @@ import java.io.IOException;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public final class JBUtils extends BonjourUtils<NsdManager> {
 
-	private static JBUtils instance;
-
 	/** NsdManager instance used for discovery, shared among subscribers */
 	private NsdManager nsdManagerInstance;
 
@@ -23,10 +21,7 @@ public final class JBUtils extends BonjourUtils<NsdManager> {
 	}
 
 	public static JBUtils get() {
-		if (instance == null) {
-			instance = new JBUtils();
-		}
-		return instance;
+		return new JBUtils();
 	}
 
 	@Override public NsdManager getManager(Context context) throws IOException {

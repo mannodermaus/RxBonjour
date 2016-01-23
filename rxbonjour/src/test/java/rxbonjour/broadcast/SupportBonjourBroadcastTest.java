@@ -65,7 +65,7 @@ public class SupportBonjourBroadcastTest extends BaseTest {
 
     @Test public void testAddAndRemoveOneCycle() throws Exception {
         BonjourBroadcastBuilder builder = PowerMockito.spy(SupportBonjourBroadcast.newBuilder("_http._tcp"));
-        BonjourBroadcast broadcast = new SupportBonjourBroadcast(builder);
+        BonjourBroadcast<?> broadcast = builder.build();
         TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
         ArgumentCaptor<ServiceInfo> captor = ArgumentCaptor.forClass(ServiceInfo.class);
 
@@ -84,7 +84,7 @@ public class SupportBonjourBroadcastTest extends BaseTest {
 
     @Test public void testAddAndRemoveOneCycleWithLocalDomain() throws Exception {
         BonjourBroadcastBuilder builder = PowerMockito.spy(SupportBonjourBroadcast.newBuilder("_http._tcp.local."));
-        BonjourBroadcast broadcast = new SupportBonjourBroadcast(builder);
+        BonjourBroadcast<?> broadcast = builder.build();
         TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
         ArgumentCaptor<ServiceInfo> captor = ArgumentCaptor.forClass(ServiceInfo.class);
 
@@ -103,10 +103,10 @@ public class SupportBonjourBroadcastTest extends BaseTest {
 
     @Test public void testAddAndRemoveTwoDifferentBroadcast() throws Exception {
         BonjourBroadcastBuilder bd1 = PowerMockito.spy(SupportBonjourBroadcast.newBuilder("_http._tcp"));
-        BonjourBroadcast bc1 = new SupportBonjourBroadcast(bd1);
+        BonjourBroadcast<?> bc1 = bd1.build();
 
         BonjourBroadcastBuilder bd2 = PowerMockito.spy(SupportBonjourBroadcast.newBuilder("_ftp._tcp"));
-        BonjourBroadcast bc2 = new SupportBonjourBroadcast(bd2);
+        BonjourBroadcast<?> bc2 = bd2.build();
 
         TestSubscriber<BonjourEvent> subscriber1 = new TestSubscriber<>();
         TestSubscriber<BonjourEvent> subscriber2 = new TestSubscriber<>();
@@ -138,7 +138,7 @@ public class SupportBonjourBroadcastTest extends BaseTest {
 
     @Test public void testStaleContext() throws Exception {
         BonjourBroadcastBuilder builder = PowerMockito.spy(SupportBonjourBroadcast.newBuilder("_http._tcp.local."));
-        BonjourBroadcast broadcast = new SupportBonjourBroadcast(builder);
+        BonjourBroadcast<?> broadcast = builder.build();
         TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
 
         broadcast.start(null).subscribe(subscriber);

@@ -83,7 +83,7 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
 					utils.incrementSubscriberCount();
 					subscriber.onNext(new BonjourEvent(BonjourEvent.Type.ADDED, bonjourService));
 				} catch (IOException e) {
-					subscriber.onError(new BroadcastFailed(SupportBonjourBroadcast.class, broadcastBuilder.type()));
+					subscriber.onError(new BroadcastFailed(SupportBonjourBroadcast.class, type));
 				}
 			}
 		});
