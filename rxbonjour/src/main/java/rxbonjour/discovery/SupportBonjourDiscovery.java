@@ -1,4 +1,4 @@
-package rxbonjour.internal;
+package rxbonjour.discovery;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
@@ -20,16 +20,19 @@ import javax.jmdns.impl.constants.DNSRecordType;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.MainThreadSubscription;
 import rxbonjour.exc.DiscoveryFailed;
 import rxbonjour.exc.StaleContextException;
+import rxbonjour.internal.BonjourSchedulers;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
+import rxbonjour.utils.SupportUtils;
 
 /**
  * Support implementation for Bonjour service discovery on pre-Jelly Bean devices,
  * utilizing Android's WifiManager and the JmDNS library for lookups.
  */
-public final class SupportBonjourDiscovery implements BonjourDiscovery {
+final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
 
 	static {
 		// Disable logging for some JmDNS classes, since those severely clutter log output
@@ -45,18 +48,15 @@ public final class SupportBonjourDiscovery implements BonjourDiscovery {
 	/** Tag to associate with the multicast lock */
 	private static final String LOCK_TAG = "RxBonjourDiscovery";
 
-	/** The JmDNS instance used for discovery, shared among subscribers */
-	private JmDNS jmdnsInstance;
-	/** Synchronization lock on the JmDNS instance */
-	private final Object jmdnsLock = new Object();
-	/** Number of subscribers listening to Bonjour events */
-	private int subscriberCount = 0;
-
 	/**
 	 * Constructor
 	 */
 	public SupportBonjourDiscovery() {
 		super();
+	}
+
+	@Override protected SupportUtils createUtils() {
+		return SupportUtils.get();
 	}
 
 	/* Begin private */
@@ -90,40 +90,6 @@ public final class SupportBonjourDiscovery implements BonjourDiscovery {
 
 		// Create and return an event wrapping the BonjourService
 		return new BonjourEvent(type, serviceBuilder.build());
-	}
-
-	/**
-	 * Returns the current connection's IP address.
-	 * This implementation is taken from http://stackoverflow.com/a/13677686/1143172
-	 * and takes note of a JmDNS issue with resolved IP addresses.
-	 *
-	 * @param wifiManager WifiManager to look up the IP address from
-	 * @return The InetAddress of the current connection
-	 * @throws IOException In case the InetAddress can't be resolved
-	 */
-	private InetAddress getInetAddress(WifiManager wifiManager) throws IOException {
-		int intaddr = wifiManager.getConnectionInfo().getIpAddress();
-
-		byte[] byteaddr = new byte[] { (byte) (intaddr & 0xff), (byte) (intaddr >> 8 & 0xff),
-				(byte) (intaddr >> 16 & 0xff), (byte) (intaddr >> 24 & 0xff) };
-		return InetAddress.getByAddress(byteaddr);
-	}
-
-	/**
-	 * Returns the JmDNS shared among all subscribers for Bonjour events, creating it if necessary.
-	 *
-	 * @param wifiManager WifiManager used to access the device's IP address with which JmDNS is initialized
-	 * @return The JmDNS instance
-	 * @throws IOException In case the device's address can't be resolved
-	 */
-	private JmDNS getJmdns(WifiManager wifiManager) throws IOException {
-		synchronized (jmdnsLock) {
-			if (jmdnsInstance == null) {
-				InetAddress inetAddress = getInetAddress(wifiManager);
-				jmdnsInstance = JmDNS.create(inetAddress, inetAddress.toString());
-			}
-			return jmdnsInstance;
-		}
 	}
 
 	/* Begin overrides */
@@ -170,14 +136,14 @@ public final class SupportBonjourDiscovery implements BonjourDiscovery {
 
 				// Obtain the current IP address and initialize JmDNS' discovery service with that
 				try {
-					final JmDNS jmdns = getJmdns(wifiManager);
+					final JmDNS jmdns = utils.getManager(context);
 
 					// Add onUnsubscribe() hook
 					subscriber.add(new MainThreadSubscription() {
 						@Override protected void onUnsubscribe() {
 							// Release the lock and clean up the JmDNS client
 							jmdns.removeServiceListener(dnsType, listener);
-							subscriberCount--;
+							utils.decrementSubscriberCount();
 
 							Observable<Void> cleanUpObservable = Observable.create(new Observable.OnSubscribe<Void>() {
 								@Override public void call(final Subscriber<? super Void> subscriber) {
@@ -185,18 +151,7 @@ public final class SupportBonjourDiscovery implements BonjourDiscovery {
 									lock.release();
 
 									// Close the JmDNS instance if no more subscribers remain
-									if (subscriberCount <= 0) {
-										// This call blocks, which is why it is running on a computation thread
-										try {
-											jmdns.close();
-										} catch (IOException ignored) {
-										} finally {
-											synchronized (jmdnsLock) {
-												jmdnsInstance = null;
-												subscriberCount = 0;
-											}
-										}
-									}
+									utils.closeIfNecessary();
 
 									// Unsubscribe from the observable automatically
 									subscriber.unsubscribe();
@@ -210,7 +165,7 @@ public final class SupportBonjourDiscovery implements BonjourDiscovery {
 
 					// Start discovery
 					jmdns.addServiceListener(dnsType, listener);
-					subscriberCount++;
+					utils.incrementSubscriberCount();
 
 				} catch (IOException e) {
 					subscriber.onError(new DiscoveryFailed(SupportBonjourDiscovery.class, dnsType));

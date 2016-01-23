@@ -1,6 +1,6 @@
 package rxbonjour.exc;
 
-import rxbonjour.internal.BonjourDiscovery;
+import rxbonjour.discovery.BonjourDiscovery;
 
 /**
  * Thrown when service discovery fails upon starting

@@ -1,4 +1,4 @@
-package rxbonjour.internal;
+package rxbonjour.discovery;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

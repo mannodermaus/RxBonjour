@@ -1,4 +1,4 @@
-package rxbonjour.internal;
+package rxbonjour.discovery;
 
 import android.content.Context;
 import android.net.wifi.WifiInfo;
@@ -11,6 +11,7 @@ import java.net.InetAddress;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceListener;
+import javax.jmdns.impl.DNSStatefulObject;
 
 import rx.observers.TestSubscriber;
 import rxbonjour.base.BaseTest;
@@ -31,13 +32,16 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 @PrepareForTest({ JmDNS.class })
 public class SupportBonjourDiscoveryTest extends BaseTest {
 
-	private JmDNS jmdns;
+	private TestJmDNS jmdns;
+
+	abstract class TestJmDNS extends JmDNS implements DNSStatefulObject {
+	}
 
 	@Override protected void setupMocks() throws Exception {
 		WifiManager wifiManager = mock(WifiManager.class);
 		WifiInfo wifiInfo = mock(WifiInfo.class);
 		WifiManager.MulticastLock lock = mock(WifiManager.MulticastLock.class);
-		jmdns = mock(JmDNS.class);
+		jmdns = mock(TestJmDNS.class);
 
 		// Wire default return values
 		when(context.getSystemService(Context.WIFI_SERVICE)).thenReturn(wifiManager);
@@ -52,6 +56,11 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 		given(JmDNS.create(any(InetAddress.class), anyString())).willReturn(jmdns);
 	}
 
+	private void setJmDNSMockClosed() {
+		when(jmdns.isClosing()).thenReturn(true);
+		when(jmdns.isClosed()).thenReturn(true);
+	}
+
 	@Test public void testAddAndRemoveOneCycle() throws Exception {
 		BonjourDiscovery discovery = new SupportBonjourDiscovery();
 		TestSubscriber<BonjourEvent> subscriber = new TestSubscriber<>();
@@ -63,6 +72,7 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 		subscriber.unsubscribe();
 		verify(jmdns, times(1)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
 		verify(jmdns, times(1)).close();
+		setJmDNSMockClosed();
 	}
 
 	@Test public void testAddAndRemoveOneCycleWithLocalDomain() throws Exception {
@@ -76,6 +86,7 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 		subscriber.unsubscribe();
 		verify(jmdns, times(1)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
 		verify(jmdns, times(1)).close();
+		setJmDNSMockClosed();
 	}
 
 	@Test public void testAddAndRemoveTwoCycle() throws Exception {
@@ -95,6 +106,7 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 		subscriber2.unsubscribe();
 		verify(jmdns, times(2)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
 		verify(jmdns, times(1)).close();
+		setJmDNSMockClosed();
 	}
 
 	@Test public void testAddAndRemoveTwoDifferentTypesCycle() throws Exception {
@@ -115,6 +127,7 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 		subscriber2.unsubscribe();
 		verify(jmdns, times(1)).removeServiceListener(eq("_ssh._tcp.local."), any(ServiceListener.class));
 		verify(jmdns, times(1)).close();
+		setJmDNSMockClosed();
 	}
 
 	@Test public void testStaleContext() throws Exception {
