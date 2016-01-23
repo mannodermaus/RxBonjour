@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// Clear the adapter's items, then start a new discovery
 		adapter.clearItems();
-		nsdSubscription = RxBonjour.startDiscovery(this, input, useNsdManager)
+		nsdSubscription = RxBonjour.newDiscovery(this, input, useNsdManager)
 				.subscribe(new Action1<BonjourEvent>() {
 					@Override public void call(BonjourEvent bonjourEvent) {
 						// Depending on the type of event and the availability of the item, adjust the adapter

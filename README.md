@@ -1,39 +1,55 @@
 # RxBonjour
 Say "Hi!" to RxBonjour, a wrapper around Android's network service discovery functionalities with a support implementation for devices below Jelly Bean, going down all the way to API level 9.
 
-Disclaimer: This library is to be considered **very early** in terms of maturity. There will probably be issues, especially since NSD is a fragile topic on Android!
-
 ## Download
 
 `RxBonjour` is available on `jcenter()`:
 
 ```groovy
-compile 'com.github.aurae:rxbonjour:0.3.3'
+compile "com.github.aurae:rxbonjour:0.4.0"
 ```
 
-## Usage
+## Discovery
 
-Create a network service discovery request using `RxBonjour.startDiscovery(Context, String)` and subscribe to the returned `Observable` (this code is using Java 8 syntax for brevity):
+Create a network service discovery request using `RxBonjour.newDiscovery(Context, String)` and subscribe to the returned `Observable`:
 
 ```java
-RxBonjour.startDiscovery(this, "_http._tcp")
-		.subscribe(bonjourEvent -> {
-			BonjourService item = bonjourEvent.getService();
-			switch (bonjourEvent.getType()) {
-				case ADDED:
-					// Called when a service was discovered
-					break;
+RxBonjour.newDiscovery(this, "_http._tcp")
+	.subscribe(bonjourEvent -> {
+		BonjourService item = bonjourEvent.getService();
+		switch (bonjourEvent.getType()) {
+			case ADDED:
+				// Called when a service was discovered
+				break;
 
-				case REMOVED:
-					// Called when a service is no longer visible
-					break;
-			}
-		}, error -> {
-			// Service discovery failed, for instance
-		});
+			case REMOVED:
+				// Called when a service is no longer visible
+				break;
+		}
+	}, error -> {
+		// Service discovery failed, for instance
+	});
 ```
 
 RxBonjour pre-configures the returned Observables to run on an I/O thread, but return their callbacks on the main thread. The discovery will be stopped automatically upon unsubscribing from the Observable.
+
+## Registration
+
+Create a service to broadcast using `RxBonjour.newBroadcast(Context, String)` and subscribe to the returned `Observable` of the broadcast object:
+
+```java
+BonjourBroadcast<?> broadcast = RxBonjour.newBroadcast("_http._tcp")
+	.name("My Broadcast")
+	.port(65335)
+	.build();
+	
+broadcast.start(this)
+	.subscribe(bonjourEvent -> {
+		// Same as above
+	});
+```
+
+RxBonjour pre-configures the returned Observables to run on an I/O thread, but return their callbacks on the main thread. The broadcast will be stopped automatically upon unsubscribing from the Observable.
 
 ## Implementations
 
@@ -41,7 +57,7 @@ RxBonjour comes with two implementations for network service discovery. By defau
 
 ```java
 // If you're feeling real and ready to reboot your device once NsdManager breaks, pass in "true" to use it for supported devices
-RxBonjour.startDiscovery(this, "_http._tcp", true)
+RxBonjour.newDiscovery(this, "_http._tcp", true)
 		.subscribe(bonjourEvent -> {
 			// ...
 		}, error -> {
