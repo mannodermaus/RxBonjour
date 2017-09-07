@@ -48,7 +48,7 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
 				}
 
 				// Obtain a multicast lock from the Wifi Manager and acquire it
-				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+				WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 				final WifiManager.MulticastLock lock = wifiManager.createMulticastLock(LOCK_TAG);
 				lock.setReferenceCounted(true);
 				lock.acquire();

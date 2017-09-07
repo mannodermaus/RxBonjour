@@ -36,6 +36,7 @@ public class JBBonjourBroadcastTest extends BaseTest {
         nsdManager = mock(NsdManager.class);
 
         // Wire default return values
+        when(context.getApplicationContext()).thenReturn(context);
         when(context.getSystemService(Context.WIFI_SERVICE)).thenReturn(wifiManager);
         when(context.getSystemService(Context.NSD_SERVICE)).thenReturn(nsdManager);
         when(wifiManager.createMulticastLock(anyString())).thenReturn(lock);

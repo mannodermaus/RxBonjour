@@ -44,6 +44,7 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 		jmdns = mock(TestJmDNS.class);
 
 		// Wire default return values
+		when(context.getApplicationContext()).thenReturn(context);
 		when(context.getSystemService(Context.WIFI_SERVICE)).thenReturn(wifiManager);
 		when(wifiManager.createMulticastLock(anyString())).thenReturn(lock);
 		when(wifiInfo.getIpAddress()).thenReturn(0);

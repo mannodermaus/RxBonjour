@@ -2,6 +2,7 @@ package rxbonjour;
 
 import android.content.Context;
 
+import rx.Observable;
 import rxbonjour.broadcast.BonjourBroadcast;
 import rxbonjour.broadcast.BonjourBroadcastBuilder;
 import rxbonjour.discovery.BonjourDiscovery;
@@ -24,14 +25,14 @@ public final class RxBonjour {
 	/**
 	 * @deprecated Use {@link #newDiscovery(Context, String)} instead.
 	 */
-	public static rx.Observable<BonjourEvent> startDiscovery(Context context, String type) {
+	public static Observable<BonjourEvent> startDiscovery(Context context, String type) {
 		return newDiscovery(context, type);
 	}
 
 	/**
 	 * @deprecated Use {@link #newDiscovery(Context, String, boolean)} instead.
 	 */
-	public static rx.Observable<BonjourEvent> startDiscovery(Context context, String type, boolean useNsdManager) {
+	public static Observable<BonjourEvent> startDiscovery(Context context, String type, boolean useNsdManager) {
 		return newDiscovery(context, type, useNsdManager);
 	}
 
@@ -52,7 +53,7 @@ public final class RxBonjour {
 	 * @see <a href="https://code.google.com/p/android/issues/detail?id=35585">"Problems with Network Services Discovery APIs" - Issue on Google Code</a>
 	 * @see <a href="https://code.google.com/p/android/issues/detail?id=39750">"NSD causes Nexus 7 device to spontaneously restart." - Issue on Google Code</a>
 	 */
-	public static rx.Observable<BonjourEvent> newDiscovery(Context context, String type) {
+	public static Observable<BonjourEvent> newDiscovery(Context context, String type) {
 		return newDiscovery(context, type, false);
 	}
 
@@ -76,7 +77,7 @@ public final class RxBonjour {
 	 * @see <a href="https://code.google.com/p/android/issues/detail?id=35585">"Problems with Network Services Discovery APIs" - Issue on Google Code</a>
 	 * @see <a href="https://code.google.com/p/android/issues/detail?id=39750">"NSD causes Nexus 7 device to spontaneously restart." - Issue on Google Code</a>
 	 */
-	public static rx.Observable<BonjourEvent> newDiscovery(Context context, String type, boolean forceNsdManager) {
+	public static Observable<BonjourEvent> newDiscovery(Context context, String type, boolean forceNsdManager) {
 		// Verify input
 		if (!isBonjourType(type)) throw new TypeMalformedException(type);
 

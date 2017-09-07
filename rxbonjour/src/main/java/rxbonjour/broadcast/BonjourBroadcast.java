@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Map;
 
+import rx.Observable;
 import rxbonjour.model.BonjourEvent;
 import rxbonjour.model.BonjourService;
 import rxbonjour.utils.BonjourUtils;
@@ -38,7 +39,7 @@ public abstract class BonjourBroadcast<T extends BonjourUtils<?>> {
 		InetAddress ia = this.address;
 
 		if (ia == null) {
-			WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+			WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 			ia = utils.getInetAddress(wifiManager);
 		}
 
@@ -58,7 +59,7 @@ public abstract class BonjourBroadcast<T extends BonjourUtils<?>> {
 
 	protected abstract T createUtils();
 
-	public abstract rx.Observable<BonjourEvent> start(Context context);
+	public abstract Observable<BonjourEvent> start(Context context);
 
 	public static BonjourBroadcastBuilder newBuilder(String type, boolean forceNsdManager) {
 		if (forceNsdManager && Build.VERSION.SDK_INT >= JELLY_BEAN) {

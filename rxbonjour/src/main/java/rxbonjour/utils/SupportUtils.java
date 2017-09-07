@@ -46,7 +46,7 @@ public final class SupportUtils extends BonjourUtils<JmDNS> {
 	@Override public JmDNS getManager(Context context) throws IOException {
 		synchronized (jmdnsLock) {
 			if (jmdnsInstance == null || !isAvailable()) {
-				WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+				WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 				InetAddress inetAddress = getInetAddress(wifiManager);
 				jmdnsInstance = JmDNS.create(inetAddress, inetAddress.toString());
 				jmdnsSubscriberCount.set(0);
