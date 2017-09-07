@@ -6,10 +6,10 @@ A wrapper around Android's network service discovery functionalities with a supp
 `RxBonjour` is available on `jcenter()`:
 
 ```groovy
-api "de.mannodermaus.rxbonjour:rxbonjour:1.0.0"
+api "de.mannodermaus.rxjava:rxbonjour:1.0.0"
 
 // Alternatively, for the RxJava 2 version:
-api "de.mannodermaus.rxbonjour:rxbonjour2:2.0.0"
+api "de.mannodermaus.rxjava2:rxbonjour:2.0.0"
 ```
 
 ## Discovery
