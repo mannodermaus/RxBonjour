@@ -9,7 +9,7 @@ A wrapper around Android's network service discovery functionalities with a supp
 api "de.mannodermaus.rxjava2:rxbonjour:2.0.0"
 ```
 
-For the RxJava 1 version, have a look at the (1.x)[onex] branch.
+For the RxJava 1 version, have a look at the [1.x][onex] branch.
 
 ## Discovery
 
