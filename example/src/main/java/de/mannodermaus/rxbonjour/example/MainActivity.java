@@ -3,6 +3,7 @@ package de.mannodermaus.rxbonjour.example;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ import de.mannodermaus.rxbonjour.RxBonjour;
 import de.mannodermaus.rxbonjour.example.rv.RvBaseAdapter;
 import de.mannodermaus.rxbonjour.example.rv.RvBaseHolder;
 import de.mannodermaus.rxbonjour.model.BonjourService;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author marcel
@@ -108,10 +111,13 @@ public class MainActivity extends AppCompatActivity {
         // Clear the adapter's items, then start a new discovery
         adapter.clearItems();
         nsdSubscription = RxBonjour.newDiscovery(this, input, useNsdManager)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         event -> {
                             // Depending on the type of event and the availability of the item, adjust the adapter
                             BonjourService item = event.getService();
+                            Log.i("RxBonjour Event", "Event: " + item);
                             switch (event.getType()) {
                                 case ADDED:
                                     if (!adapter.containsItem(item)) adapter.addItem(item);
