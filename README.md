@@ -1,12 +1,15 @@
 # RxBonjour
-Say "Hi!" to RxBonjour, a wrapper around Android's network service discovery functionalities with a support implementation for devices below Jelly Bean, going down all the way to API level 9.
+A wrapper around Android's network service discovery functionalities with a support implementation for devices below Jelly Bean, going down all the way to API level 14.
 
 ## Download
 
 `RxBonjour` is available on `jcenter()`:
 
 ```groovy
-compile "com.github.aurae:rxbonjour:0.4.0"
+api "de.mannodermaus.rxbonjour:rxbonjour:1.0.0"
+
+// Alternatively, for the RxJava 2 version:
+api "de.mannodermaus.rxbonjour:rxbonjour2:2.0.0"
 ```
 
 ## Discovery
@@ -31,7 +34,7 @@ RxBonjour.newDiscovery(this, "_http._tcp")
 	});
 ```
 
-RxBonjour pre-configures the returned Observables to run on an I/O thread, but return their callbacks on the main thread. The discovery will be stopped automatically upon unsubscribing from the Observable.
+Make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Observable.
 
 ## Registration
 
@@ -49,7 +52,7 @@ broadcast.start(this)
 	});
 ```
 
-RxBonjour pre-configures the returned Observables to run on an I/O thread, but return their callbacks on the main thread. The broadcast will be stopped automatically upon unsubscribing from the Observable.
+Again, make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Observable.
 
 ## Implementations
 
@@ -69,9 +72,10 @@ RxBonjour.newDiscovery(this, "_http._tcp", true)
 
 On devices running Jelly Bean and up, Android's native Network Service Discovery API, centered around `NsdManager`, can be used.
 
-### Support implementation (v9)
+### Support implementation (v14)
 
-The support implementation utilizes the latest available version of [jmDNS][jmdns] (a snapshot of version **3.4.2**) and a `WifiManager` multicast lock as its service discovery backbone; because of this, including this library in your application's dependencies automatically adds the following permissions to your `AndroidManifest.xml`, in order to allow jmDNS to do its thing:
+The support implementation utilizes [jmDNS][jmdns] and a `WifiManager` multicast lock as its service discovery backbone;
+because of this, including this library in your application's dependencies automatically adds the following permissions to your `AndroidManifest.xml`, in order to allow jmDNS to do its thing:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>

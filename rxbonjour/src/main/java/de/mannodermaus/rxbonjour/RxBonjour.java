@@ -2,13 +2,12 @@ package de.mannodermaus.rxbonjour;
 
 import android.content.Context;
 
-import rx.Observable;
 import de.mannodermaus.rxbonjour.broadcast.BonjourBroadcast;
 import de.mannodermaus.rxbonjour.broadcast.BonjourBroadcastBuilder;
 import de.mannodermaus.rxbonjour.discovery.BonjourDiscovery;
 import de.mannodermaus.rxbonjour.exc.TypeMalformedException;
-import de.mannodermaus.rxbonjour.internal.BonjourSchedulers;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
+import rx.Observable;
 
 /**
  * RxBonjour:
@@ -85,8 +84,7 @@ public final class RxBonjour {
         BonjourDiscovery<?> discovery = BonjourDiscovery.get(forceNsdManager);
 
         // Create the discovery Observable and pre-configure it
-        return discovery.start(context, type)
-                .compose(BonjourSchedulers.<BonjourEvent>startSchedulers());
+        return discovery.start(context, type);
     }
 
     public static BonjourBroadcastBuilder newBroadcast(String type) {

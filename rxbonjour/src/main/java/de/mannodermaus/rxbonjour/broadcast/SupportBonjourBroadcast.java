@@ -12,15 +12,17 @@ import java.util.Map;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.MainThreadSubscription;
 import de.mannodermaus.rxbonjour.exc.BroadcastFailed;
 import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.internal.BonjourSchedulers;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
 import de.mannodermaus.rxbonjour.model.BonjourService;
 import de.mannodermaus.rxbonjour.utils.SupportUtils;
+import rx.Emitter;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.MainThreadSubscription;
+import rx.functions.Action1;
 
 final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
 
@@ -41,11 +43,11 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
         // Create a weak reference to the incoming Context
         final WeakReference<Context> weakContext = new WeakReference<>(context);
 
-        Observable<BonjourEvent> obs = Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
-            @Override public void call(Subscriber<? super BonjourEvent> subscriber) {
+        return Observable.create(new Action1<Emitter<BonjourEvent>>() {
+            @Override public void call(final Emitter<BonjourEvent> emitter) {
                 Context context = weakContext.get();
                 if (context == null) {
-                    subscriber.onError(new StaleContextException());
+                    emitter.onError(new StaleContextException());
                     return;
                 }
 
@@ -61,7 +63,7 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
                     final ServiceInfo jmdnsService = createJmdnsService(bonjourService);
                     final JmDNS jmdns = utils.getManager(context);
 
-                    subscriber.add(new MainThreadSubscription() {
+                    emitter.setSubscription(new MainThreadSubscription() {
                         @Override
                         protected void onUnsubscribe() {
                             jmdns.unregisterService(jmdnsService);
@@ -84,15 +86,12 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
 
                     jmdns.registerService(jmdnsService);
                     utils.incrementSubscriberCount();
-                    subscriber.onNext(new BonjourEvent(BonjourEvent.Type.ADDED, bonjourService));
+                    emitter.onNext(new BonjourEvent(BonjourEvent.Type.ADDED, bonjourService));
                 } catch (IOException e) {
-                    subscriber.onError(new BroadcastFailed(SupportBonjourBroadcast.class, type));
+                    emitter.onError(new BroadcastFailed(SupportBonjourBroadcast.class, type));
                 }
             }
-        });
-
-        return obs
-                .compose(BonjourSchedulers.<BonjourEvent>startSchedulers());
+        }, Emitter.BackpressureMode.LATEST);
     }
 
     private ServiceInfo createJmdnsService(BonjourService serviceInfo) {
