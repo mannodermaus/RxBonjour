@@ -16,13 +16,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.Unbinder;
-import rx.Subscription;
 import de.mannodermaus.rxbonjour.RxBonjour;
 import de.mannodermaus.rxbonjour.example.rv.RvBaseAdapter;
 import de.mannodermaus.rxbonjour.example.rv.RvBaseHolder;
 import de.mannodermaus.rxbonjour.model.BonjourService;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.disposables.Disposables;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author marcel
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private RvBaseAdapter<BonjourService> adapter;
     private Unbinder unbinder;
 
-    private Subscription nsdSubscription;
+    private Disposable nsdDisposable = Disposables.empty();
     private boolean useNsdManager = false;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -91,10 +92,7 @@ public class MainActivity extends AppCompatActivity {
 	/* Begin private */
 
     private void unsubscribe() {
-        if (nsdSubscription != null) {
-            nsdSubscription.unsubscribe();
-            nsdSubscription = null;
-        }
+        nsdDisposable.dispose();
     }
 
     private void restartDiscovery() {
@@ -110,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Clear the adapter's items, then start a new discovery
         adapter.clearItems();
-        nsdSubscription = RxBonjour.newDiscovery(this, input, useNsdManager)
+        nsdDisposable = RxBonjour.newDiscovery(this, input, useNsdManager)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
