@@ -1,6 +1,5 @@
 apply plugin: "com.android.library"
-apply plugin: "maven"
-apply plugin: "maven-publish"
+apply plugin: "digital.wup.android-maven-publish"
 apply plugin: "com.jfrog.bintray"
 
 android {
@@ -36,6 +35,9 @@ dependencies {
 // Deployment Setup
 // ------------------------------------------------------------------------------------------------
 
+group = GROUP_ID
+version = VERSION_NAME
+
 // Include sources.jar archive in each release
 task sourcesJar(type: Jar) {
     classifier = "sources"
@@ -43,13 +45,14 @@ task sourcesJar(type: Jar) {
 }
 
 // Include javadoc.jar archive in each release
-task androidJavadoc(type: Javadoc) {
+task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
 }
 
-task javadocJar(type: Jar) {
+task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = "javadoc"
-    from androidJavadoc.destinationDir
+    from javadoc.destinationDir
 }
 
 artifacts {
@@ -57,12 +60,31 @@ artifacts {
     archives javadocJar
 }
 
-version = VERSION_NAME
+def pomConfig = {
+    licenses {
+        license {
+            name LICENSE_NAME
+            url LICENSE_URL
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id DEVELOPER_ID
+            name DEVELOPER_NAME
+            email DEVELOPER_EMAIL
+        }
+    }
+
+    scm {
+        url WEB_URL
+    }
+}
 
 publishing {
     publications {
         library(MavenPublication) {
-            artifact "$buildDir/outputs/aar/rxbonjour-release.aar"
+            from components.android
             artifact sourcesJar
             artifact javadocJar
             groupId GROUP_ID
@@ -72,37 +94,26 @@ publishing {
                 def root = asNode()
                 root.appendNode("description", DESCRIPTION)
                 root.appendNode("name", ARTIFACT_ID)
-                root.appendNode("url", VCS_URL)
+                root.appendNode("url", WEB_URL)
+                root.children().last() + pomConfig
             }
         }
     }
 }
 
-// Copy POM to location expected by Bintray
-task copyPom(type: Copy) {
-    from "build/publications/library"
-    into "build/poms"
-    include "pom-default.xml"
-}
-
-publish.dependsOn copyPom
-
 bintray {
     user = project.ext.bintrayUser
     key = project.ext.bintrayKey
-    configurations = ["archives"]
+    publications = ["library"]
     dryRun = false
+
     pkg {
         repo = "maven"
-        name = ARTIFACT_ID
+        name = LIBRARY_NAME
         userOrg = project.ext.bintrayUser
-        licenses = [LICENCE_NAME]
+        licenses = [LICENSE_ID]
+        vcsUrl = GIT_URL
+        websiteUrl = WEB_URL
         publish = true
-        publicDownloadNumbers = true
-        vcsUrl = VCS_URL
-        version {
-            name = VERSION_NAME
-            desc = DESCRIPTION
-        }
     }
 }

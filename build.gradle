@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$GRADLE_PLUGIN_VERSION"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$BINTRAY_PLUGIN_VERSION"
-        classpath "com.github.dcendents:android-maven-gradle-plugin:$MAVEN_PLUGIN_VERSION"
+        classpath "digital.wup:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
     }
 }
 
