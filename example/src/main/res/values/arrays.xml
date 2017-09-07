@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string-array name="implementations">
-		<item>JmDNS Support Implementation (v9)</item>
-		<item>NSDManager Implementation (v16)</item>
-	</string-array>
+    <string-array name="implementations">
+        <item>JmDNS Support Implementation (v9)</item>
+        <item>NSDManager Implementation (v16)</item>
+    </string-array>
 </resources>
