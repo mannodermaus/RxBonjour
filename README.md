@@ -85,7 +85,7 @@ because of this, including this library in your application's dependencies autom
 
 ## License
 
-	Copyright 2016 Marcel Schnelle
+	Copyright 2017 Marcel Schnelle
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
