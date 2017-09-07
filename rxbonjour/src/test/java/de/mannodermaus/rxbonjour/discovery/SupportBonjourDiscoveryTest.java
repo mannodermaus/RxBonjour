@@ -13,10 +13,10 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.impl.DNSStatefulObject;
 
-import rx.observers.TestSubscriber;
 import de.mannodermaus.rxbonjour.base.BaseTest;
 import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
+import io.reactivex.subscribers.TestSubscriber;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -70,7 +70,7 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 
         subscriber.assertNoErrors();
         verify(jmdns, times(1)).addServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
-        subscriber.unsubscribe();
+        subscriber.dispose();
         verify(jmdns, times(1)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
         verify(jmdns, times(1)).close();
         setJmDNSMockClosed();
@@ -84,7 +84,7 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
 
         subscriber.assertNoErrors();
         verify(jmdns, times(1)).addServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
-        subscriber.unsubscribe();
+        subscriber.dispose();
         verify(jmdns, times(1)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
         verify(jmdns, times(1)).close();
         setJmDNSMockClosed();
@@ -101,10 +101,10 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
         subscriber1.assertNoErrors();
         subscriber2.assertNoErrors();
         verify(jmdns, times(2)).addServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
-        subscriber1.unsubscribe();
+        subscriber1.dispose();
         verify(jmdns, times(1)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
         verify(jmdns, never()).close();
-        subscriber2.unsubscribe();
+        subscriber2.dispose();
         verify(jmdns, times(2)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
         verify(jmdns, times(1)).close();
         setJmDNSMockClosed();
@@ -122,10 +122,10 @@ public class SupportBonjourDiscoveryTest extends BaseTest {
         subscriber2.assertNoErrors();
         verify(jmdns, times(1)).addServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
         verify(jmdns, times(1)).addServiceListener(eq("_ssh._tcp.local."), any(ServiceListener.class));
-        subscriber1.unsubscribe();
+        subscriber1.dispose();
         verify(jmdns, times(1)).removeServiceListener(eq("_http._tcp.local."), any(ServiceListener.class));
         verify(jmdns, never()).close();
-        subscriber2.unsubscribe();
+        subscriber2.dispose();
         verify(jmdns, times(1)).removeServiceListener(eq("_ssh._tcp.local."), any(ServiceListener.class));
         verify(jmdns, times(1)).close();
         setJmDNSMockClosed();

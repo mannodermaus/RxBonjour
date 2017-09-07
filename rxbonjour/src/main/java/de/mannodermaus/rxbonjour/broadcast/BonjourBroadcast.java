@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Map;
 
-import rx.Observable;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
 import de.mannodermaus.rxbonjour.model.BonjourService;
 import de.mannodermaus.rxbonjour.utils.BonjourUtils;
+import io.reactivex.Flowable;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 
@@ -59,7 +59,7 @@ public abstract class BonjourBroadcast<T extends BonjourUtils<?>> {
 
     protected abstract T createUtils();
 
-    public abstract Observable<BonjourEvent> start(Context context);
+    public abstract Flowable<BonjourEvent> start(Context context);
 
     public static BonjourBroadcastBuilder newBuilder(String type, boolean forceNsdManager) {
         if (forceNsdManager && Build.VERSION.SDK_INT >= JELLY_BEAN) {

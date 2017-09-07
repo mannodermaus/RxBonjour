@@ -11,10 +11,10 @@ import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-import rx.observers.TestSubscriber;
 import de.mannodermaus.rxbonjour.base.BaseTest;
 import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
+import io.reactivex.subscribers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -54,7 +54,7 @@ public class JBBonjourBroadcastTest extends BaseTest {
 
         verify(nsdManager).registerService(any(NsdServiceInfo.class), anyInt(), any(NsdManager.RegistrationListener.class));
 
-        subscriber.unsubscribe();
+        subscriber.dispose();
         verify(nsdManager).unregisterService(any(NsdManager.RegistrationListener.class));
     }
 

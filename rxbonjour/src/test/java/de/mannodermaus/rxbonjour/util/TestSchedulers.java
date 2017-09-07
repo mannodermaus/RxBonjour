@@ -1,24 +1,29 @@
 package de.mannodermaus.rxbonjour.util;
 
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.CompletableTransformer;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.schedulers.Schedulers;
 
 public class TestSchedulers {
 
-    public static <T> Observable.Transformer<T, T> immediateSchedulers() {
-        return new Observable.Transformer<T, T>() {
-            @Override public Observable<T> call(Observable<T> obs) {
-                return obs
-                        .subscribeOn(Schedulers.immediate())
-                        .observeOn(Schedulers.immediate());
+    public static <T> CompletableTransformer immediateSchedulers() {
+        return new CompletableTransformer() {
+            @Override public CompletableSource apply(Completable upstream) {
+                return upstream
+                        .subscribeOn(Schedulers.trampoline())
+                        .observeOn(Schedulers.trampoline());
             }
         };
     }
 
-    public static <T> Observable.Transformer<T, T> backlogSchedulers() {
-        return new Observable.Transformer<T, T>() {
-            @Override public Observable<T> call(Observable<T> obs) {
-                return obs
+    public static <T> ObservableTransformer<T, T> backlogSchedulers() {
+        return new ObservableTransformer<T, T>() {
+            @Override public ObservableSource<T> apply(Observable<T> upstream) {
+                return upstream
                         .subscribeOn(Schedulers.computation())
                         .observeOn(Schedulers.computation());
             }

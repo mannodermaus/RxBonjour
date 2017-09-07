@@ -6,10 +6,10 @@ import android.net.nsd.NsdManager;
 
 import org.junit.Test;
 
-import rx.observers.TestSubscriber;
 import de.mannodermaus.rxbonjour.base.BaseTest;
 import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
+import io.reactivex.subscribers.TestSubscriber;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -39,7 +39,7 @@ public class JBBonjourDiscoveryTest extends BaseTest {
 
         subscriber.assertNoErrors();
         verify(nsdManager, times(1)).discoverServices(eq("_http._tcp"), anyInt(), any(NsdManager.DiscoveryListener.class));
-        subscriber.unsubscribe();
+        subscriber.dispose();
         verify(nsdManager, times(1)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
     }
 
@@ -51,7 +51,7 @@ public class JBBonjourDiscoveryTest extends BaseTest {
 
         subscriber.assertNoErrors();
         verify(nsdManager, times(1)).discoverServices(eq("_http._tcp.local."), anyInt(), any(NsdManager.DiscoveryListener.class));
-        subscriber.unsubscribe();
+        subscriber.dispose();
         verify(nsdManager, times(1)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
     }
 
@@ -66,9 +66,9 @@ public class JBBonjourDiscoveryTest extends BaseTest {
         subscriber1.assertNoErrors();
         subscriber2.assertNoErrors();
         verify(nsdManager, times(2)).discoverServices(eq("_http._tcp"), anyInt(), any(NsdManager.DiscoveryListener.class));
-        subscriber1.unsubscribe();
+        subscriber1.dispose();
         verify(nsdManager, times(1)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
-        subscriber2.unsubscribe();
+        subscriber2.dispose();
         verify(nsdManager, times(2)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
     }
 
@@ -84,9 +84,9 @@ public class JBBonjourDiscoveryTest extends BaseTest {
         subscriber2.assertNoErrors();
         verify(nsdManager, times(1)).discoverServices(eq("_http._tcp"), anyInt(), any(NsdManager.DiscoveryListener.class));
         verify(nsdManager, times(1)).discoverServices(eq("_ssh._tcp"), anyInt(), any(NsdManager.DiscoveryListener.class));
-        subscriber1.unsubscribe();
+        subscriber1.dispose();
         verify(nsdManager, times(1)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
-        subscriber2.unsubscribe();
+        subscriber2.dispose();
         verify(nsdManager, times(2)).stopServiceDiscovery(any(NsdManager.DiscoveryListener.class));
     }
 

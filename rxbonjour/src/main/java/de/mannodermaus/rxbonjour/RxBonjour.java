@@ -7,7 +7,7 @@ import de.mannodermaus.rxbonjour.broadcast.BonjourBroadcastBuilder;
 import de.mannodermaus.rxbonjour.discovery.BonjourDiscovery;
 import de.mannodermaus.rxbonjour.exc.TypeMalformedException;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
-import rx.Observable;
+import io.reactivex.Flowable;
 
 /**
  * RxBonjour:
@@ -24,14 +24,14 @@ public final class RxBonjour {
     /**
      * @deprecated Use {@link #newDiscovery(Context, String)} instead.
      */
-    public static Observable<BonjourEvent> startDiscovery(Context context, String type) {
+    public static Flowable<BonjourEvent> startDiscovery(Context context, String type) {
         return newDiscovery(context, type);
     }
 
     /**
      * @deprecated Use {@link #newDiscovery(Context, String, boolean)} instead.
      */
-    public static Observable<BonjourEvent> startDiscovery(Context context, String type, boolean useNsdManager) {
+    public static Flowable<BonjourEvent> startDiscovery(Context context, String type, boolean useNsdManager) {
         return newDiscovery(context, type, useNsdManager);
     }
 
@@ -52,7 +52,7 @@ public final class RxBonjour {
      * @see <a href="https://code.google.com/p/android/issues/detail?id=35585">"Problems with Network Services Discovery APIs" - Issue on Google Code</a>
      * @see <a href="https://code.google.com/p/android/issues/detail?id=39750">"NSD causes Nexus 7 device to spontaneously restart." - Issue on Google Code</a>
      */
-    public static Observable<BonjourEvent> newDiscovery(Context context, String type) {
+    public static Flowable<BonjourEvent> newDiscovery(Context context, String type) {
         return newDiscovery(context, type, false);
     }
 
@@ -76,7 +76,7 @@ public final class RxBonjour {
      * @see <a href="https://code.google.com/p/android/issues/detail?id=35585">"Problems with Network Services Discovery APIs" - Issue on Google Code</a>
      * @see <a href="https://code.google.com/p/android/issues/detail?id=39750">"NSD causes Nexus 7 device to spontaneously restart." - Issue on Google Code</a>
      */
-    public static Observable<BonjourEvent> newDiscovery(Context context, String type, boolean forceNsdManager) {
+    public static Flowable<BonjourEvent> newDiscovery(Context context, String type, boolean forceNsdManager) {
         // Verify input
         if (!isBonjourType(type)) throw new TypeMalformedException(type);
 

@@ -4,15 +4,21 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.subjects.BehaviorSubject;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * Backlog manager class, polling objects and processing them until an external object calls
  * {@link #proceed()}.
  */
 public abstract class Backlog<T> {
+
+    /**
+     * Item sent to the Backlog upon requesting the next item to be consumed.
+     * Actually unused, but RxJava 2.x doesn't allow null values anymore
+     */
+    private static final Object NEXT_MARKER = new Object();
 
     /**
      * Item sent to the Backlog upon requesting to quit processing with it
@@ -27,12 +33,12 @@ public abstract class Backlog<T> {
     /**
      * Subject responsible for notifying the backlog to continue processing
      */
-    private BehaviorSubject<Void> subject;
+    private BehaviorSubject<Object> subject;
 
     /**
-     * Subscription to the subject, held right after instantiation
+     * Disposable to the subject, held right after instantiation
      */
-    private Subscription subscription;
+    private Disposable disposable;
 
     /**
      * Busy flag, set upon processing an item, until {@link #proceed()} is called
@@ -44,10 +50,10 @@ public abstract class Backlog<T> {
      */
     public Backlog() {
         subject = BehaviorSubject.create();
-        subscription = subject
-                .compose(BonjourSchedulers.<Void>backlogSchedulers())
-                .subscribe(new Action1<Void>() {
-                    @Override public void call(Void aVoid) {
+        disposable = subject
+                .compose(BonjourSchedulers.backlogSchedulers())
+                .subscribe(new Consumer<Object>() {
+                    @Override public void accept(Object unused) {
                         try {
                             // Take an item pushed to the queue and check for the STOP marker
                             Object info = queue.take();
@@ -72,8 +78,8 @@ public abstract class Backlog<T> {
     public void quit() {
         // Send the STOP signal to the queue
         queue.add(STOP_MARKER);
-        subject.onCompleted();
-        subscription.unsubscribe();
+        subject.onComplete();
+        disposable.dispose();
     }
 
     /**
@@ -92,7 +98,7 @@ public abstract class Backlog<T> {
      */
     public void proceed() {
         idle.set(true);
-        subject.onNext(null);
+        subject.onNext(NEXT_MARKER);
     }
 
 	/* Begin abstract */

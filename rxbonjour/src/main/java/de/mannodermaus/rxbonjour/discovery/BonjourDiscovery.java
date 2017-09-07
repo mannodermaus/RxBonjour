@@ -3,9 +3,9 @@ package de.mannodermaus.rxbonjour.discovery;
 import android.content.Context;
 import android.os.Build;
 
-import rx.Observable;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
 import de.mannodermaus.rxbonjour.utils.BonjourUtils;
+import io.reactivex.Flowable;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 
@@ -29,7 +29,7 @@ public abstract class BonjourDiscovery<T extends BonjourUtils<?>> {
      * @param type    Type of service to discover
      * @return An Observable for Bonjour events
      */
-    public abstract Observable<BonjourEvent> start(Context context, String type);
+    public abstract Flowable<BonjourEvent> start(Context context, String type);
 
     public static BonjourDiscovery get(boolean forceNsdManager) {
         if (forceNsdManager && Build.VERSION.SDK_INT >= JELLY_BEAN) {

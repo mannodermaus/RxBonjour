@@ -18,15 +18,18 @@ import javax.jmdns.impl.DNSIncoming;
 import javax.jmdns.impl.constants.DNSRecordClass;
 import javax.jmdns.impl.constants.DNSRecordType;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.MainThreadSubscription;
 import de.mannodermaus.rxbonjour.exc.DiscoveryFailed;
 import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.internal.BonjourSchedulers;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
 import de.mannodermaus.rxbonjour.model.BonjourService;
 import de.mannodermaus.rxbonjour.utils.SupportUtils;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.android.MainThreadDisposable;
 
 /**
  * Support implementation for Bonjour service discovery on pre-Jelly Bean devices,
@@ -98,18 +101,18 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
 
 	/* Begin overrides */
 
-    @Override public Observable<BonjourEvent> start(Context context, final String type) {
+    @Override public Flowable<BonjourEvent> start(Context context, final String type) {
         // Append ".local." suffix in order to have JmDNS pick up on the services
         final String dnsType = (type.endsWith(SUFFIX)) ? type : type + SUFFIX;
 
         // Create a weak reference to the incoming Context
         final WeakReference<Context> weakContext = new WeakReference<>(context);
 
-        return Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
-            @Override public void call(final Subscriber<? super BonjourEvent> subscriber) {
+        return Flowable.create(new FlowableOnSubscribe<BonjourEvent>() {
+            @Override public void subscribe(final FlowableEmitter<BonjourEvent> emitter) throws Exception {
                 Context context = weakContext.get();
                 if (context == null) {
-                    subscriber.onError(new StaleContextException());
+                    emitter.onError(new StaleContextException());
                     return;
                 }
 
@@ -120,14 +123,14 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
                     }
 
                     @Override public void serviceRemoved(ServiceEvent event) {
-                        if (!subscriber.isUnsubscribed()) {
-                            subscriber.onNext(newBonjourEvent(BonjourEvent.Type.REMOVED, event));
+                        if (!emitter.isCancelled()) {
+                            emitter.onNext(newBonjourEvent(BonjourEvent.Type.REMOVED, event));
                         }
                     }
 
                     @Override public void serviceResolved(ServiceEvent event) {
-                        if (!subscriber.isUnsubscribed()) {
-                            subscriber.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, event));
+                        if (!emitter.isCancelled()) {
+                            emitter.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, event));
                         }
                     }
                 };
@@ -143,26 +146,23 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
                     final JmDNS jmdns = utils.getManager(context);
 
                     // Add onUnsubscribe() hook
-                    subscriber.add(new MainThreadSubscription() {
-                        @Override protected void onUnsubscribe() {
+                    emitter.setDisposable(new MainThreadDisposable() {
+                        @Override protected void onDispose() {
                             // Release the lock and clean up the JmDNS client
                             jmdns.removeServiceListener(dnsType, listener);
                             utils.decrementSubscriberCount();
 
-                            Observable<Void> cleanUpObservable = Observable.create(new Observable.OnSubscribe<Void>() {
-                                @Override
-                                public void call(final Subscriber<? super Void> subscriber) {
+                            Completable cleanUp = Completable.fromRunnable(new Runnable() {
+                                @Override public void run() {
                                     // Release the held multicast lock
                                     lock.release();
 
                                     // Close the JmDNS instance if no more subscribers remain
                                     utils.closeIfNecessary();
-
-                                    // Unsubscribe from the observable automatically
-                                    subscriber.unsubscribe();
                                 }
                             });
-                            cleanUpObservable
+
+                            cleanUp
                                     .compose(BonjourSchedulers.cleanupSchedulers())
                                     .subscribe();
                         }
@@ -173,9 +173,9 @@ final class SupportBonjourDiscovery extends BonjourDiscovery<SupportUtils> {
                     utils.incrementSubscriberCount();
 
                 } catch (IOException e) {
-                    subscriber.onError(new DiscoveryFailed(SupportBonjourDiscovery.class, dnsType));
+                    emitter.onError(new DiscoveryFailed(SupportBonjourDiscovery.class, dnsType));
                 }
             }
-        });
+        }, BackpressureStrategy.LATEST);
     }
 }

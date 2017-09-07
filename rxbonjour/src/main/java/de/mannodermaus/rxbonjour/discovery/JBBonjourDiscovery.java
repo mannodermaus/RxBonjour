@@ -11,15 +11,17 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.MainThreadSubscription;
 import de.mannodermaus.rxbonjour.exc.DiscoveryFailed;
 import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.internal.Backlog;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
 import de.mannodermaus.rxbonjour.model.BonjourService;
 import de.mannodermaus.rxbonjour.utils.JBUtils;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.android.MainThreadDisposable;
 
 import static android.os.Build.VERSION_CODES.JELLY_BEAN;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
@@ -83,15 +85,17 @@ final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
 
 	/* Begin overrides */
 
-    @Override public Observable<BonjourEvent> start(Context context, final String type) {
+    @Override public Flowable<BonjourEvent> start(Context context, final String type) {
         // Create a weak reference to the incoming Context
         final WeakReference<Context> weakContext = new WeakReference<>(context);
 
-        Observable<BonjourEvent> obs = Observable.create(new Observable.OnSubscribe<BonjourEvent>() {
-            @Override public void call(final Subscriber<? super BonjourEvent> subscriber) {
+        Flowable<BonjourEvent> stream = Flowable.create(new FlowableOnSubscribe<BonjourEvent>() {
+            @Override
+            public void subscribe(final FlowableEmitter<BonjourEvent> emitter) throws Exception {
+
                 Context context = weakContext.get();
                 if (context == null) {
-                    subscriber.onError(new StaleContextException());
+                    emitter.onError(new StaleContextException());
                     return;
                 }
 
@@ -99,11 +103,12 @@ final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
                 final NsdManager.DiscoveryListener discoveryListener = new NsdManager.DiscoveryListener() {
                     @Override
                     public void onStartDiscoveryFailed(String serviceType, int errorCode) {
-                        subscriber.onError(new DiscoveryFailed(JBBonjourDiscovery.class, serviceType, errorCode));
+                        emitter.onError(new DiscoveryFailed(JBBonjourDiscovery.class, serviceType, errorCode));
                     }
 
-                    @Override public void onStopDiscoveryFailed(String serviceType, int errorCode) {
-                        subscriber.onError(new DiscoveryFailed(JBBonjourDiscovery.class, serviceType, errorCode));
+                    @Override
+                    public void onStopDiscoveryFailed(String serviceType, int errorCode) {
+                        emitter.onError(new DiscoveryFailed(JBBonjourDiscovery.class, serviceType, errorCode));
                     }
 
                     @Override public void onDiscoveryStarted(String serviceType) {
@@ -118,8 +123,8 @@ final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
                     }
 
                     @Override public void onServiceLost(NsdServiceInfo serviceInfo) {
-                        if (!subscriber.isUnsubscribed()) {
-                            subscriber.onNext(newBonjourEvent(BonjourEvent.Type.REMOVED, serviceInfo));
+                        if (!emitter.isCancelled()) {
+                            emitter.onNext(newBonjourEvent(BonjourEvent.Type.REMOVED, serviceInfo));
                         }
                     }
                 };
@@ -129,8 +134,8 @@ final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
                 try {
                     nsdManager = utils.getManager(context);
                 } catch (IOException e) {
-                    if (subscriber.isUnsubscribed()) return;
-                    subscriber.onError(e);
+                    if (emitter.isCancelled()) return;
+                    emitter.onError(e);
                     return;
                 }
 
@@ -147,8 +152,8 @@ final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
 
                                 @Override
                                 public void onServiceResolved(NsdServiceInfo serviceInfo) {
-                                    if (!subscriber.isUnsubscribed()) {
-                                        subscriber.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, serviceInfo));
+                                    if (!emitter.isCancelled()) {
+                                        emitter.onNext(newBonjourEvent(BonjourEvent.Type.ADDED, serviceInfo));
                                     }
 
                                     // Inform the backlog to continue processing
@@ -160,8 +165,8 @@ final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
                 }
 
                 // Add onUnsubscribe() hook
-                subscriber.add(new MainThreadSubscription() {
-                    @Override protected void onUnsubscribe() {
+                emitter.setDisposable(new MainThreadDisposable() {
+                    @Override protected void onDispose() {
                         try {
                             nsdManager.stopServiceDiscovery(discoveryListener);
                             subscriberCount--;
@@ -182,9 +187,9 @@ final class JBBonjourDiscovery extends BonjourDiscovery<JBUtils> {
                 nsdManager.discoverServices(type, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
                 subscriberCount++;
             }
-        });
+        }, BackpressureStrategy.LATEST);
 
         // Share the observable to have multiple subscribers receive the same results emitted by the single DiscoveryListener
-        return obs.share();
+        return stream.share();
     }
 }

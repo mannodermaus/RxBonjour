@@ -18,11 +18,12 @@ import de.mannodermaus.rxbonjour.internal.BonjourSchedulers;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
 import de.mannodermaus.rxbonjour.model.BonjourService;
 import de.mannodermaus.rxbonjour.utils.SupportUtils;
-import rx.Emitter;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.MainThreadSubscription;
-import rx.functions.Action1;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.android.MainThreadDisposable;
 
 final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
 
@@ -39,12 +40,12 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
         return SupportUtils.get();
     }
 
-    @Override public Observable<BonjourEvent> start(Context context) {
+    @Override public Flowable<BonjourEvent> start(Context context) {
         // Create a weak reference to the incoming Context
         final WeakReference<Context> weakContext = new WeakReference<>(context);
 
-        return Observable.create(new Action1<Emitter<BonjourEvent>>() {
-            @Override public void call(final Emitter<BonjourEvent> emitter) {
+        return Flowable.create(new FlowableOnSubscribe<BonjourEvent>() {
+            @Override public void subscribe(final FlowableEmitter<BonjourEvent> emitter) throws Exception {
                 Context context = weakContext.get();
                 if (context == null) {
                     emitter.onError(new StaleContextException());
@@ -63,22 +64,20 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
                     final ServiceInfo jmdnsService = createJmdnsService(bonjourService);
                     final JmDNS jmdns = utils.getManager(context);
 
-                    emitter.setSubscription(new MainThreadSubscription() {
+                    emitter.setDisposable(new MainThreadDisposable() {
                         @Override
-                        protected void onUnsubscribe() {
+                        protected void onDispose() {
                             jmdns.unregisterService(jmdnsService);
                             utils.decrementSubscriberCount();
                             lock.release();
 
-                            Observable<Void> cleanUpObservable = Observable.create(new Observable.OnSubscribe<Void>() {
-                                @Override
-                                public void call(final Subscriber<? super Void> subscriber) {
+                            Completable cleanUp = Completable.fromRunnable(new Runnable() {
+                                @Override public void run() {
                                     utils.closeIfNecessary();
-                                    subscriber.unsubscribe();
                                 }
                             });
 
-                            cleanUpObservable
+                            cleanUp
                                     .compose(BonjourSchedulers.cleanupSchedulers())
                                     .subscribe();
                         }
@@ -91,7 +90,7 @@ final class SupportBonjourBroadcast extends BonjourBroadcast<SupportUtils> {
                     emitter.onError(new BroadcastFailed(SupportBonjourBroadcast.class, type));
                 }
             }
-        }, Emitter.BackpressureMode.LATEST);
+        }, BackpressureStrategy.LATEST);
     }
 
     private ServiceInfo createJmdnsService(BonjourService serviceInfo) {

@@ -15,10 +15,10 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.impl.DNSStatefulObject;
 
-import rx.observers.TestSubscriber;
 import de.mannodermaus.rxbonjour.base.BaseTest;
 import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
+import io.reactivex.subscribers.TestSubscriber;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
@@ -77,7 +77,7 @@ public class SupportBonjourBroadcastTest extends BaseTest {
         ServiceInfo serviceInfo = captor.getValue();
         assertEquals(serviceInfo.getType(), "_http._tcp.local.");
 
-        subscriber.unsubscribe();
+        subscriber.dispose();
         verify(jmdns, times(1)).unregisterService(serviceInfo);
         verify(jmdns, times(1)).close();
         setJmDNSMockClosed();
@@ -96,7 +96,7 @@ public class SupportBonjourBroadcastTest extends BaseTest {
         ServiceInfo serviceInfo = captor.getValue();
         assertEquals(serviceInfo.getType(), "_http._tcp.local.");
 
-        subscriber.unsubscribe();
+        subscriber.dispose();
         verify(jmdns, times(1)).unregisterService(serviceInfo);
         verify(jmdns, times(1)).close();
         setJmDNSMockClosed();
@@ -127,11 +127,11 @@ public class SupportBonjourBroadcastTest extends BaseTest {
         ServiceInfo si2 = captor.getValue();
         assertEquals(si2.getType(), "_ftp._tcp.local.");
 
-        subscriber1.unsubscribe();
+        subscriber1.dispose();
         verify(jmdns, times(1)).unregisterService(si1);
         verify(jmdns, never()).close();
 
-        subscriber2.unsubscribe();
+        subscriber2.dispose();
         verify(jmdns, times(1)).unregisterService(si2);
         verify(jmdns, times(1)).close();
         setJmDNSMockClosed();

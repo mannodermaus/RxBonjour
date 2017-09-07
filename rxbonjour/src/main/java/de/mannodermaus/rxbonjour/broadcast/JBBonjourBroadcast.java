@@ -18,10 +18,11 @@ import de.mannodermaus.rxbonjour.exc.StaleContextException;
 import de.mannodermaus.rxbonjour.model.BonjourEvent;
 import de.mannodermaus.rxbonjour.model.BonjourService;
 import de.mannodermaus.rxbonjour.utils.JBUtils;
-import rx.Emitter;
-import rx.Observable;
-import rx.android.MainThreadSubscription;
-import rx.functions.Action1;
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.android.MainThreadDisposable;
 
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
@@ -36,12 +37,12 @@ final class JBBonjourBroadcast extends BonjourBroadcast<JBUtils> {
         return JBUtils.get();
     }
 
-    @Override public Observable<BonjourEvent> start(Context context) {
+    @Override public Flowable<BonjourEvent> start(Context context) {
         // Create a weak reference to the incoming Context
         final WeakReference<Context> weakContext = new WeakReference<>(context);
 
-        return Observable.create(new Action1<Emitter<BonjourEvent>>() {
-            @Override public void call(final Emitter<BonjourEvent> emitter) {
+        return Flowable.create(new FlowableOnSubscribe<BonjourEvent>() {
+            @Override public void subscribe(final FlowableEmitter<BonjourEvent> emitter) throws Exception {
                 Context context = weakContext.get();
                 if (context == null) {
                     emitter.onError(new StaleContextException());
@@ -77,9 +78,8 @@ final class JBBonjourBroadcast extends BonjourBroadcast<JBUtils> {
 
                     nsdManager.registerService(nsdService, NsdManager.PROTOCOL_DNS_SD, listener);
 
-                    emitter.setSubscription(new MainThreadSubscription() {
-                        @Override
-                        protected void onUnsubscribe() {
+                    emitter.setDisposable(new MainThreadDisposable() {
+                        @Override protected void onDispose() {
                             try {
                                 nsdManager.unregisterService(listener);
                             } catch (IllegalArgumentException ignored) {
@@ -91,7 +91,7 @@ final class JBBonjourBroadcast extends BonjourBroadcast<JBUtils> {
                     emitter.onError(new BroadcastFailed(JBBonjourBroadcast.class, type));
                 }
             }
-        }, Emitter.BackpressureMode.LATEST);
+        }, BackpressureStrategy.LATEST);
     }
 
     private BonjourService mapNsdServiceInfo(NsdServiceInfo info) {
