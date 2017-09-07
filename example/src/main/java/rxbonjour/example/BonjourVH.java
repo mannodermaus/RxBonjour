@@ -9,8 +9,9 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.util.Iterator;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import rxbonjour.example.rv.RvBaseHolder;
 import rxbonjour.model.BonjourService;
 
@@ -19,11 +20,11 @@ import rxbonjour.model.BonjourService;
  */
 public class BonjourVH extends RvBaseHolder<BonjourService> {
 
-	@Bind(R.id.tv_name) TextView tvName;
-	@Bind(R.id.tv_type) TextView tvType;
-	@Bind(R.id.tv_host_port_v4) TextView tvHostPortV4;
-	@Bind(R.id.tv_host_port_v6) TextView tvHostPortV6;
-	@Bind(R.id.tv_txtrecords) TextView tvTxtRecords;
+	@BindView(R.id.tv_name) TextView tvName;
+	@BindView(R.id.tv_type) TextView tvType;
+	@BindView(R.id.tv_host_port_v4) TextView tvHostPortV4;
+	@BindView(R.id.tv_host_port_v6) TextView tvHostPortV6;
+	@BindView(R.id.tv_txtrecords) TextView tvTxtRecords;
 
 	/**
 	 * Constructor

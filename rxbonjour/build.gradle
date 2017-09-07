@@ -20,15 +20,15 @@ android {
 
 dependencies {
     // @formatter:off
-    implementation "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"   // Support annotations
-    implementation "io.reactivex:rxjava:$RXJAVA_VERSION"                                // Reactive extensions
-    implementation "io.reactivex:rxandroid:$RXANDROID_VERSION"                          // Reactive extensions
-    implementation "org.jmdns:jmdns:$JMDNS_JAR_VERSION"                                 // Network Service Discovery (pre-JB)
+    api "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"          // Support annotations
+    api "io.reactivex:rxjava:$RXJAVA_VERSION"                                       // Reactive extensions
+    api "io.reactivex:rxandroid:$RXANDROID_VERSION"                                 // Reactive extensions
+    implementation "org.jmdns:jmdns:$JMDNS_JAR_VERSION"                             // Network Service Discovery (pre-JB)
 
-    testImplementation "junit:junit:$JUNIT_VERSION"                                     // Unit Testing
-    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                      // Mocking Framework
-    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"         // Mocking Framework extensions
-    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"       // Mocking Framework extensions
+    testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
+    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                  // Mocking Framework
+    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"     // Mocking Framework extensions
+    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"   // Mocking Framework extensions
     // @formatter:on
 }
 
