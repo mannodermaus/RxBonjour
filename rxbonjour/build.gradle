@@ -1,4 +1,4 @@
-apply plugin: 'com.android.library'
+apply plugin: "com.android.library"
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION
@@ -16,14 +16,17 @@ android {
 }
 
 dependencies {
-    compile "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"      // Support annotations
-    compile "io.reactivex:rxandroid:$RXANDROID_VERSION"                             // Reactive extensions
-    compile "org.jmdns:jmdns:$JMDNS_JAR_VERSION"                                    // Network Service Discovery (pre-JB)
+    // @formatter:off
+    implementation "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"   // Support annotations
+    implementation "io.reactivex:rxjava:$RXJAVA_VERSION"                                // Reactive extensions
+    implementation "io.reactivex:rxandroid:$RXANDROID_VERSION"                          // Reactive extensions
+    implementation "org.jmdns:jmdns:$JMDNS_JAR_VERSION"                                 // Network Service Discovery (pre-JB)
 
-    testCompile "junit:junit:${JUNIT_VERSION}"                                      // Unit Testing
-    testCompile "org.mockito:mockito-core:${MOCKITO_VERSION}"                       // Mocking Framework
-    testCompile "org.powermock:powermock-api-mockito:${POWERMOCK_VERSION}"          // Mocking Framework extensions
-    testCompile "org.powermock:powermock-module-junit4:${POWERMOCK_VERSION}"        // Mocking Framework extensions
+    testImplementation "junit:junit:$JUNIT_VERSION"                                     // Unit Testing
+    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                      // Mocking Framework
+    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"         // Mocking Framework extensions
+    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"       // Mocking Framework extensions
+    // @formatter:on
 }
 
 afterEvaluate {
@@ -34,28 +37,28 @@ afterEvaluate {
 }
 
 ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'RxBonjour'
+    bintrayRepo = "maven"
+    bintrayName = "RxBonjour"
 
     publishedGroupId = GROUP_NAME
-    libraryName = 'RxBonjour'
+    libraryName = "RxBonjour"
     artifact = ARTIFACT_ID
 
-    libraryDescription = 'Reactive spice added to Android\'s network service discovery API.'
+    libraryDescription = "Reactive spice added to Android\"s network service discovery API."
 
-    siteUrl = 'https://github.com/aurae/RxBonjour'
-    gitUrl = 'https://github.com/aurae/RxBonjour.git'
+    siteUrl = "https://github.com/aurae/RxBonjour"
+    gitUrl = "https://github.com/aurae/RxBonjour.git"
 
     libraryVersion = VERSION_NAME
 
-    developerId = 'aurae'
-    developerName = 'Marcel Schnelle'
-    developerEmail = 'schnellemarcel@gmail.com'
+    developerId = "aurae"
+    developerName = "Marcel Schnelle"
+    developerEmail = "schnellemarcel@gmail.com"
 
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    licenseName = "The Apache Software License, Version 2.0"
+    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.txt"
     allLicenses = ["Apache-2.0"]
 }
 
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+apply from: "https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle"
+apply from: "https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle"
