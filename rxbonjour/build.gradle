@@ -20,8 +20,8 @@ android {
 dependencies {
     // @formatter:off
     api "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"          // Support annotations
-    api "io.reactivex:rxjava:$RXJAVA_VERSION"                                       // Reactive extensions
-    api "io.reactivex:rxandroid:$RXANDROID_VERSION"                                 // Reactive extensions
+    api "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"                               // Reactive extensions
+    api "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"                         // Reactive extensions
     implementation ("org.jmdns:jmdns:$JMDNS_JAR_VERSION") {                         // Network Service Discovery (pre-JB)
         exclude group: "org.slf4j"
     }

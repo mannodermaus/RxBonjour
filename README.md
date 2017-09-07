@@ -6,15 +6,14 @@ A wrapper around Android's network service discovery functionalities with a supp
 `RxBonjour` is available on `jcenter()`:
 
 ```groovy
-api "de.mannodermaus.rxbonjour:rxbonjour:1.0.0"
-
-// Alternatively, for the RxJava 2 version:
-api "de.mannodermaus.rxbonjour:rxbonjour2:2.0.0"
+api "de.mannodermaus.rxjava2:rxbonjour:2.0.0"
 ```
+
+For the RxJava 1 version, have a look at the (1.x)[onex] branch.
 
 ## Discovery
 
-Create a network service discovery request using `RxBonjour.newDiscovery(Context, String)` and subscribe to the returned `Observable`:
+Create a network service discovery request using `RxBonjour.newDiscovery(Context, String)` and subscribe to the returned `Flowable`:
 
 ```java
 RxBonjour.newDiscovery(this, "_http._tcp")
@@ -34,11 +33,11 @@ RxBonjour.newDiscovery(this, "_http._tcp")
 	});
 ```
 
-Make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Observable.
+Make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Flowable.
 
 ## Registration
 
-Create a service to broadcast using `RxBonjour.newBroadcast(Context, String)` and subscribe to the returned `Observable` of the broadcast object:
+Create a service to broadcast using `RxBonjour.newBroadcast(Context, String)` and subscribe to the returned `Flowable` of the broadcast object:
 
 ```java
 BonjourBroadcast<?> broadcast = RxBonjour.newBroadcast("_http._tcp")
@@ -52,11 +51,11 @@ broadcast.start(this)
 	});
 ```
 
-Again, make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Observable.
+Again, make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Flowable.
 
 ## Implementations
 
-RxBonjour comes with two implementations for network service discovery. By default, the support implementation is used because of the unreliable state of the `NsdManager` APIs and known bugs with that. If you **really** want to use `NsdManager` on devices running Jelly Bean and up though, you can specify this when creating service discovery Observables:
+RxBonjour comes with two implementations for network service discovery. By default, the support implementation is used because of the unreliable state of the `NsdManager` APIs and known bugs with that. If you **really** want to use `NsdManager` on devices running Jelly Bean and up though, you can specify this when creating service discovery Flowables:
 
 ```java
 // If you're feeling real and ready to reboot your device once NsdManager breaks, pass in "true" to use it for supported devices
@@ -102,4 +101,5 @@ because of this, including this library in your application's dependencies autom
 	
  [jmdns]: https://github.com/openhab/jmdns
  [jit]: https://jitpack.io
+ [onex]: https://github.com/aurae/RxBonjour/tree/1.x
 	
