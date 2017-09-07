@@ -22,7 +22,10 @@ android {
 dependencies {
     implementation project(":rxbonjour")
 
-    implementation "com.jakewharton:butterknife:$BUTTERKNIFE_VERSION"
     implementation "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
     implementation "com.android.support:recyclerview-v7:$SUPPORT_LIBRARY_VERSION"
+
+    // TODO Migrate to 8.x
+    implementation "com.jakewharton:butterknife:$BUTTERKNIFE_VERSION"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$BUTTERKNIFE_VERSION"
 }

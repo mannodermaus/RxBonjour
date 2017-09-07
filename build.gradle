@@ -11,9 +11,31 @@ buildscript {
     }
 }
 
+// Populate deployment credentials in an environment-aware fashion.
+//
+// * Local development:
+//      Stored in local.properties file on the machine
+// * CI Server:
+//      Stored in environment variables before launch
+Properties properties = new Properties()
+
+def credentialsFile = new File(project.rootDir, "local.properties")
+if (credentialsFile.exists()) {
+    credentialsFile.withReader { properties.load(it) }
+}
+
+// @formatter:off
+def bintrayUser     = properties.get("BINTRAY_USER",    System.getenv("bintrayUser"))
+def bintrayKey      = properties.get("BINTRAY_KEY",     System.getenv("bintrayKey"))
+// @formatter:on
+
 allprojects {
     repositories {
         jcenter()
         google()
     }
+
+    // Store deployment credentials
+    ext.bintrayUser = bintrayUser
+    ext.bintrayKey = bintrayKey
 }

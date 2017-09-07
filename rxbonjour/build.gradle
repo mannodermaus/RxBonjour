@@ -1,4 +1,7 @@
 apply plugin: "com.android.library"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: "com.jfrog.bintray"
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION
@@ -29,36 +32,77 @@ dependencies {
     // @formatter:on
 }
 
-afterEvaluate {
-    tasks.withType(Javadoc).each {
-        it.classpath += configurations.compile
-        it.failOnError = false
+// ------------------------------------------------------------------------------------------------
+// Deployment Setup
+// ------------------------------------------------------------------------------------------------
+
+// Include sources.jar archive in each release
+task sourcesJar(type: Jar) {
+    classifier = "sources"
+    from android.sourceSets.main.java.srcDirs
+}
+
+// Include javadoc.jar archive in each release
+task androidJavadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+}
+
+task javadocJar(type: Jar) {
+    classifier = "javadoc"
+    from androidJavadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+version = VERSION_NAME
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            artifact "$buildDir/outputs/aar/rxbonjour-release.aar"
+            artifact sourcesJar
+            artifact javadocJar
+            groupId GROUP_ID
+            artifactId ARTIFACT_ID
+            version VERSION_NAME
+            pom.withXml {
+                def root = asNode()
+                root.appendNode("description", DESCRIPTION)
+                root.appendNode("name", ARTIFACT_ID)
+                root.appendNode("url", VCS_URL)
+            }
+        }
     }
 }
 
-ext {
-    bintrayRepo = "maven"
-    bintrayName = "RxBonjour"
-
-    publishedGroupId = GROUP_NAME
-    libraryName = "RxBonjour"
-    artifact = ARTIFACT_ID
-
-    libraryDescription = "Reactive spice added to Android\"s network service discovery API."
-
-    siteUrl = "https://github.com/aurae/RxBonjour"
-    gitUrl = "https://github.com/aurae/RxBonjour.git"
-
-    libraryVersion = VERSION_NAME
-
-    developerId = "aurae"
-    developerName = "Marcel Schnelle"
-    developerEmail = "schnellemarcel@gmail.com"
-
-    licenseName = "The Apache Software License, Version 2.0"
-    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-    allLicenses = ["Apache-2.0"]
+// Copy POM to location expected by Bintray
+task copyPom(type: Copy) {
+    from "build/publications/library"
+    into "build/poms"
+    include "pom-default.xml"
 }
 
-apply from: "https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle"
-apply from: "https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle"
+publish.dependsOn copyPom
+
+bintray {
+    user = project.ext.bintrayUser
+    key = project.ext.bintrayKey
+    configurations = ["archives"]
+    dryRun = false
+    pkg {
+        repo = "maven"
+        name = ARTIFACT_ID
+        userOrg = project.ext.bintrayUser
+        licenses = [LICENCE_NAME]
+        publish = true
+        publicDownloadNumbers = true
+        vcsUrl = VCS_URL
+        version {
+            name = VERSION_NAME
+            desc = DESCRIPTION
+        }
+    }
+}
