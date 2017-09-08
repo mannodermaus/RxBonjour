@@ -19,6 +19,8 @@ import java.nio.charset.Charset
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
+private val BACKLOG_QUEUE_SIZE = 32
+
 internal class NsdManagerDiscoveryEngine(
         private val context: Context,
         private val type: String) : DiscoveryEngine {
@@ -31,7 +33,7 @@ internal class NsdManagerDiscoveryEngine(
     }
 
     override fun discover(address: InetAddress, callback: DiscoveryCallback) {
-        val nsdManager = context.getSystemService(Context.NSD_SERVICE) as NsdManager
+        val nsdManager = context.getNsdManager()
         val resolveBacklog = NsdResolveBacklog(nsdManager, callback)
 
         this.nsdManager = nsdManager
@@ -93,7 +95,7 @@ private class NsdResolveBacklog(
     object NEXT
     object STOP
 
-    private val queue = LinkedBlockingQueue<Any>(128)
+    private val queue = EvictingQueue<Any>()
     private val subject = BehaviorSubject.create<Any>()
     private val disposable: Disposable
     private val idle = AtomicBoolean(true)
@@ -132,6 +134,7 @@ private class NsdResolveBacklog(
     /** Terminates the work of this backlog instance */
     fun quit() {
         // Send the STOP signal
+        queue.clear()
         queue.add(STOP)
         subject.onComplete()
         disposable.dispose()
@@ -152,7 +155,18 @@ private class NsdResolveBacklog(
     }
 }
 
+// Queue Implementation that automatically evicts
+// the oldest element when trying to push beyond its capacity.
+private class EvictingQueue<T>(size: Int = BACKLOG_QUEUE_SIZE) : LinkedBlockingQueue<T>(size) {
+    override fun add(element: T): Boolean {
+        if (remainingCapacity() == 0) remove()
+        return super.add(element)
+    }
+}
+
 /* Extension Functions */
+
+private fun Context.getNsdManager() = this.getSystemService(Context.NSD_SERVICE) as NsdManager
 
 private fun NsdServiceInfo.getTxtRecords(): TxtRecords {
     return if (Build.VERSION.SDK_INT >= LOLLIPOP) {
