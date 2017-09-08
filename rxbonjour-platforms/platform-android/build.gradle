@@ -8,7 +8,7 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION
+        minSdkVersion 14
         targetSdkVersion TARGET_SDK_VERSION
         versionName VERSION_NAME
     }
@@ -26,12 +26,12 @@ dependencies {
     // @formatter:off
     implementation project(":rxbonjour")
 
-    implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"          // Reactive Extensions for Android
+    implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"              // Reactive Extensions for Android
 
-    testCompile "junit:junit:$JUNIT_VERSION"                                    // Unit Testing
-    testCompile "org.mockito:mockito-core:$MOCKITO_VERSION"                     // Mocking Framework
-    testCompile "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"        // Mocking Framework extensions
-    testCompile "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"      // Mocking Framework extensions
+    testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
+    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                  // Mocking Framework
+    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"     // Mocking Framework extensions
+    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"   // Mocking Framework extensions
     // @formatter:on
 }
 

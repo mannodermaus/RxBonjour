@@ -8,7 +8,6 @@ import de.mannodermaus.rxbonjour.Driver
  * RxBonjour Driver implementation using JmDNS for Network Service Discovery.
  */
 class JmDNSDriver private constructor() : Driver {
-
     override val name: String = "jmdns"
     override fun createDiscovery(type: String): DiscoveryEngine = JmDNSDiscoveryEngine(type)
     override fun createBroadcast(): BroadcastEngine = JmDNSBroadcastEngine()

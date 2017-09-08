@@ -2,6 +2,8 @@ include ":rxbonjour"
 
 include ":driver-jmdns"
 project(":driver-jmdns").projectDir = new File("rxbonjour-drivers/driver-jmdns")
+include ":driver-nsdmanager"
+project(":driver-nsdmanager").projectDir = new File("rxbonjour-drivers/driver-nsdmanager")
 
 include ":platform-android"
 project(":platform-android").projectDir = new File("rxbonjour-platforms/platform-android")

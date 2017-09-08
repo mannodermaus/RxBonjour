@@ -5,16 +5,16 @@ apply plugin: "com.jfrog.bintray"
 
 dependencies {
     // @formatter:off
-    api project(":rxbonjour")
-    implementation ("org.jmdns:jmdns:$JMDNS_JAR_VERSION") {
+    implementation project(":rxbonjour")
+    implementation ("org.jmdns:jmdns:$JMDNS_JAR_VERSION") {                         // Network Service Discovery API
         exclude group: "org.slf4j"
     }
-    implementation "org.slf4j:slf4j-nop:$SLF4J_VERSION"
+    implementation "org.slf4j:slf4j-nop:$SLF4J_VERSION"                             // Logging Facade
 
-    testCompile "junit:junit:$JUNIT_VERSION"                                    // Unit Testing
-    testCompile "org.mockito:mockito-core:$MOCKITO_VERSION"                     // Mocking Framework
-    testCompile "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"        // Mocking Framework extensions
-    testCompile "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"      // Mocking Framework extensions
+    testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
+    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                  // Mocking Framework
+    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"     // Mocking Framework extensions
+    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"   // Mocking Framework extensions
     // @formatter:on
 }
 

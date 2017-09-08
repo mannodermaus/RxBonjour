@@ -31,7 +31,7 @@ internal class JmDNSBroadcastEngine : BroadcastEngine {
 
             // Closing JmDNS might take a while, so defer it to a background thread
             Completable.fromAction { jmdns.close() }
-                    .compose(BonjourSchedulers.cleanupSchedulers())
+                    .compose(BonjourSchedulers.completableAsync())
                     .onErrorComplete()
                     .subscribe()
         }

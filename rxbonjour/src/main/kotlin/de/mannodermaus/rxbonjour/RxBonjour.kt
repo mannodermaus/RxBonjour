@@ -43,6 +43,13 @@ class RxBonjour private constructor(
                         discovery.initialize()
                         connection.initialize()
 
+                        // Destruction
+                        val disposable = platform.runOnTeardown {
+                            discovery.teardown()
+                            connection.teardown()
+                        }
+                        emitter.setDisposable(disposable)
+
                         // Lifetime
                         val callback = object : DiscoveryCallback {
                             override fun discoveryFailed(code: Int) {
@@ -62,13 +69,6 @@ class RxBonjour private constructor(
                         }
                         val address = platform.getWifiAddress()
                         discovery.discover(address, callback)
-
-                        // Destruction
-                        val disposable = platform.runOnTeardown {
-                            discovery.teardown()
-                            connection.teardown()
-                        }
-                        emitter.setDisposable(disposable)
                     }
                 }
 
@@ -106,16 +106,16 @@ class RxBonjour private constructor(
                         broadcast.initialize()
                         connection.initialize()
 
-                        // Lifetime
-                        val address = config.address ?: platform.getWifiAddress()
-                        broadcast.start(address, config)
-
                         // Destruction
                         val disposable = platform.runOnTeardown {
                             broadcast.teardown()
                             connection.teardown()
                         }
                         emitter.setDisposable(disposable)
+
+                        // Lifetime
+                        val address = config.address ?: platform.getWifiAddress()
+                        broadcast.start(address, config)
                     }
                 }
 
