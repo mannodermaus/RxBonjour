@@ -1,7 +1,6 @@
 package de.mannodermaus.rxbonjour.internal;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import rx.Subscription;
@@ -22,7 +21,7 @@ public abstract class Backlog<T> {
     /**
      * Queue to which pending objects are added
      */
-    private BlockingQueue<Object> queue = new LinkedBlockingQueue<>(32);
+    private BlockingQueue<Object> queue = new EvictingQueue<>(32);
 
     /**
      * Subject responsible for notifying the backlog to continue processing
