@@ -7,10 +7,9 @@ A wrapper around Android's network service discovery functionalities with a supp
 
 ```groovy
 api "de.mannodermaus.rxjava:rxbonjour:1.0.0"
-
-// Alternatively, for the RxJava 2 version:
-api "de.mannodermaus.rxjava2:rxbonjour:2.0.0"
 ```
+
+For the RxJava 2 version, have a look at the [2.x][twox] branch.
 
 ## Discovery
 
@@ -102,4 +101,5 @@ because of this, including this library in your application's dependencies autom
 	
  [jmdns]: https://github.com/openhab/jmdns
  [jit]: https://jitpack.io
+ [twox]: https://github.com/aurae/RxBonjour/tree/2.x
 	
