@@ -18,11 +18,15 @@ interface DiscoveryEngine : Engine {
 }
 
 interface DiscoveryCallback {
-    fun discoveryFailed(code: Int)
+    fun discoveryFailed(cause: Exception?)
     fun serviceResolved(service: BonjourService)
     fun serviceLost(service: BonjourService)
 }
 
 interface BroadcastEngine : Engine {
-    fun start(address: InetAddress, config: BonjourBroadcast)
+    fun start(address: InetAddress, config: BonjourBroadcast, callback: BroadcastCallback)
+}
+
+interface BroadcastCallback {
+    fun broadcastFailed(cause: Exception?)
 }

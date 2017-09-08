@@ -2,6 +2,7 @@ package de.mannodermaus.rxbonjour.drivers.jmdns
 
 import de.mannodermaus.rxbonjour.BonjourBroadcast
 import de.mannodermaus.rxbonjour.BonjourSchedulers
+import de.mannodermaus.rxbonjour.BroadcastCallback
 import de.mannodermaus.rxbonjour.BroadcastEngine
 import io.reactivex.Completable
 import java.net.InetAddress
@@ -16,13 +17,17 @@ internal class JmDNSBroadcastEngine : BroadcastEngine {
     override fun initialize() {
     }
 
-    override fun start(address: InetAddress, config: BonjourBroadcast) {
+    override fun start(address: InetAddress, config: BonjourBroadcast, callback: BroadcastCallback) {
         val jmdns = JmDNS.create(address, address.toString())
         this.jmdns = jmdns
         this.jmdnsService = config.toJmDNSModel()
 
         // This will start the broadcast immediately
-        jmdns.registerService(jmdnsService)
+        try {
+            jmdns.registerService(jmdnsService)
+        } catch (ex: Exception) {
+            callback.broadcastFailed(ex)
+        }
     }
 
     override fun teardown() {

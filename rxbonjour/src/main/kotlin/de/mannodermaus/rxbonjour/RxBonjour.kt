@@ -52,9 +52,9 @@ class RxBonjour private constructor(
 
                         // Lifetime
                         val callback = object : DiscoveryCallback {
-                            override fun discoveryFailed(code: Int) {
+                            override fun discoveryFailed(cause: Exception?) {
                                 // Abort stream
-                                emitter.onError(DiscoveryFailedException(driver.name, code))
+                                emitter.onError(DiscoveryFailedException(driver.name, cause))
                             }
 
                             override fun serviceResolved(service: BonjourService) {
@@ -114,8 +114,13 @@ class RxBonjour private constructor(
                         emitter.setDisposable(disposable)
 
                         // Lifetime
+                        val callback = object : BroadcastCallback {
+                            override fun broadcastFailed(cause: Exception?) {
+                                emitter.onError(BroadcastFailedException(driver.name, cause))
+                            }
+                        }
                         val address = config.address ?: platform.getWifiAddress()
-                        broadcast.start(address, config)
+                        broadcast.start(address, config, callback)
                     }
                 }
 

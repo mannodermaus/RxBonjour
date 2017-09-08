@@ -41,7 +41,11 @@ constructor(type: String) : DiscoveryEngine {
         this.listener = JmDNSListener(callback)
 
         // This will start the discovery immediately
-        jmdns.addServiceListener(serviceType, listener)
+        try {
+            jmdns.addServiceListener(serviceType, listener)
+        } catch (ex: Exception) {
+            callback.discoveryFailed(ex)
+        }
     }
 
     override fun teardown() {

@@ -3,19 +3,12 @@ package de.mannodermaus.rxbonjour.drivers.nsdmanager
 import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
-import android.os.Build
-import android.os.Build.VERSION_CODES.LOLLIPOP
 import de.mannodermaus.rxbonjour.BonjourSchedulers
-import de.mannodermaus.rxbonjour.BonjourService
 import de.mannodermaus.rxbonjour.DiscoveryCallback
 import de.mannodermaus.rxbonjour.DiscoveryEngine
-import de.mannodermaus.rxbonjour.TxtRecords
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
-import java.net.Inet4Address
-import java.net.Inet6Address
 import java.net.InetAddress
-import java.nio.charset.Charset
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -68,12 +61,12 @@ internal class NsdManagerDiscoveryEngine(
             callback.serviceLost(service.toLibraryModel())
         }
 
-        override fun onStartDiscoveryFailed(p0: String?, p1: Int) {
-            callback.discoveryFailed(p1)
+        override fun onStartDiscoveryFailed(type: String?, code: Int) {
+            callback.discoveryFailed(NsdDiscoveryException(code))
         }
 
-        override fun onStopDiscoveryFailed(p0: String?, p1: Int) {
-            callback.discoveryFailed(p1)
+        override fun onStopDiscoveryFailed(type: String?, code: Int) {
+            callback.discoveryFailed(NsdDiscoveryException(code))
         }
 
         override fun onDiscoveryStarted(p0: String?) {
@@ -163,27 +156,3 @@ private class EvictingQueue<T>(size: Int = BACKLOG_QUEUE_SIZE) : LinkedBlockingQ
         return super.add(element)
     }
 }
-
-/* Extension Functions */
-
-private fun Context.getNsdManager() = this.getSystemService(Context.NSD_SERVICE) as NsdManager
-
-private fun NsdServiceInfo.getTxtRecords(): TxtRecords {
-    return if (Build.VERSION.SDK_INT >= LOLLIPOP) {
-        // NSD Attributes only available on API 21+
-        this.attributes
-                .map { (key, bytes) -> Pair(key, String(bytes, Charset.forName("UTF-8"))) }
-                .associate { it }
-
-    } else {
-        emptyMap()
-    }
-}
-
-private fun NsdServiceInfo.toLibraryModel() = BonjourService(
-        name = this.serviceName,
-        type = this.serviceType,
-        v4Host = if (this.host is Inet4Address) this.host as Inet4Address else null,
-        v6Host = if (this.host is Inet6Address) this.host as Inet6Address else null,
-        port = this.port,
-        txtRecords = this.getTxtRecords())
