@@ -5,10 +5,7 @@ apply plugin: "com.jfrog.bintray"
 
 dependencies {
     // @formatter:off
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"                // Kotlin Foundation
-    compile "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"                       // Reactive extensions
-
-    compileOnly "com.google.android:android:$ANDROID_VERSION"                   // Android Framework
+    implementation project(":rxbonjour")
 
     testCompile "junit:junit:$JUNIT_VERSION"                                    // Unit Testing
     testCompile "org.mockito:mockito-core:$MOCKITO_VERSION"                     // Mocking Framework
@@ -23,7 +20,7 @@ dependencies {
 
 group = GROUP_ID
 version = VERSION_NAME
-ext.artifact = "$ARTIFACT_ID-core"
+ext.artifact = "$ARTIFACT_ID-platform-java"
 
 // Include sources.jar archive in each release
 task sourcesJar(type: Jar, dependsOn: classes) {

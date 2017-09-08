@@ -1,2 +1,12 @@
-include ':rxbonjour'
-include ':example'
+include ":rxbonjour"
+
+include ":driver-jmdns"
+project(":driver-jmdns").projectDir = new File("rxbonjour-drivers/driver-jmdns")
+
+include ":platform-android"
+project(":platform-android").projectDir = new File("rxbonjour-platforms/platform-android")
+include ":platform-desktop"
+project(":platform-desktop").projectDir = new File("rxbonjour-platforms/platform-desktop")
+
+include ":sample-android"
+project(":sample-android").projectDir = new File("samples/sample-android")

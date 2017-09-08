@@ -1,14 +1,32 @@
-apply plugin: "java-library"
-apply plugin: "kotlin"
-apply plugin: "maven-publish"
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "digital.wup.android-maven-publish"
 apply plugin: "com.jfrog.bintray"
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION
+        targetSdkVersion TARGET_SDK_VERSION
+        versionName VERSION_NAME
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+    }
+}
 
 dependencies {
     // @formatter:off
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"                // Kotlin Foundation
-    compile "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"                       // Reactive extensions
+    implementation project(":rxbonjour")
 
-    compileOnly "com.google.android:android:$ANDROID_VERSION"                   // Android Framework
+    implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"          // Reactive Extensions for Android
 
     testCompile "junit:junit:$JUNIT_VERSION"                                    // Unit Testing
     testCompile "org.mockito:mockito-core:$MOCKITO_VERSION"                     // Mocking Framework
@@ -23,15 +41,21 @@ dependencies {
 
 group = GROUP_ID
 version = VERSION_NAME
-ext.artifact = "$ARTIFACT_ID-core"
+ext.artifact = "$ARTIFACT_ID-platform-android"
 
 // Include sources.jar archive in each release
-task sourcesJar(type: Jar, dependsOn: classes) {
+task sourcesJar(type: Jar) {
     classifier = "sources"
-    from sourceSets.main.allSource
+    from android.sourceSets.main.java.srcDirs
 }
 
 // Include javadoc.jar archive in each release
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    excludes = ["**/*.kt"]
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = "javadoc"
     from javadoc.destinationDir
@@ -66,7 +90,7 @@ def pomConfig = {
 publishing {
     publications {
         library(MavenPublication) {
-            from components.java
+            from components.android
             artifact sourcesJar
             artifact javadocJar
             groupId GROUP_ID

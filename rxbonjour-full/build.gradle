@@ -1,19 +1,36 @@
-apply plugin: "java-library"
-apply plugin: "kotlin"
-apply plugin: "maven-publish"
+apply plugin: "com.android.library"
+apply plugin: "digital.wup.android-maven-publish"
 apply plugin: "com.jfrog.bintray"
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION
+        targetSdkVersion TARGET_SDK_VERSION
+        versionName VERSION_NAME
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
 
 dependencies {
     // @formatter:off
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"                // Kotlin Foundation
-    compile "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"                       // Reactive extensions
+    api "com.android.support:support-annotations:$SUPPORT_LIBRARY_VERSION"          // Support annotations
+    api "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"                               // Reactive extensions
+    api "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"                         // Reactive extensions
+    implementation ("org.jmdns:jmdns:$JMDNS_JAR_VERSION") {                         // Network Service Discovery (pre-JB)
+        exclude group: "org.slf4j"
+    }
+    implementation "org.slf4j:slf4j-android:$SLF4J_ANDROID_VERSION"                 // Logging Bridge for JmDNS
 
-    compileOnly "com.google.android:android:$ANDROID_VERSION"                   // Android Framework
-
-    testCompile "junit:junit:$JUNIT_VERSION"                                    // Unit Testing
-    testCompile "org.mockito:mockito-core:$MOCKITO_VERSION"                     // Mocking Framework
-    testCompile "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"        // Mocking Framework extensions
-    testCompile "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"      // Mocking Framework extensions
+    testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
+    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                  // Mocking Framework
+    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"     // Mocking Framework extensions
+    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"   // Mocking Framework extensions
     // @formatter:on
 }
 
@@ -23,15 +40,19 @@ dependencies {
 
 group = GROUP_ID
 version = VERSION_NAME
-ext.artifact = "$ARTIFACT_ID-core"
 
 // Include sources.jar archive in each release
-task sourcesJar(type: Jar, dependsOn: classes) {
+task sourcesJar(type: Jar) {
     classifier = "sources"
-    from sourceSets.main.allSource
+    from android.sourceSets.main.java.srcDirs
 }
 
 // Include javadoc.jar archive in each release
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = "javadoc"
     from javadoc.destinationDir
@@ -66,16 +87,16 @@ def pomConfig = {
 publishing {
     publications {
         library(MavenPublication) {
-            from components.java
+            from components.android
             artifact sourcesJar
             artifact javadocJar
             groupId GROUP_ID
-            artifactId project.ext.artifact
+            artifactId ARTIFACT_ID
             version VERSION_NAME
             pom.withXml {
                 def root = asNode()
                 root.appendNode("description", DESCRIPTION)
-                root.appendNode("name", project.ext.artifact)
+                root.appendNode("name", ARTIFACT_ID)
                 root.appendNode("url", WEB_URL)
                 root.children().last() + pomConfig
             }

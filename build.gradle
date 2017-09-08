@@ -2,12 +2,14 @@ buildscript {
     repositories {
         jcenter()
         google()
+        maven { url KOTLIN_REPO_URL }
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$GRADLE_PLUGIN_VERSION"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$BINTRAY_PLUGIN_VERSION"
         classpath "digital.wup:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
     }
 }
 
@@ -33,6 +35,7 @@ allprojects {
     repositories {
         jcenter()
         google()
+        maven { url KOTLIN_REPO_URL }
     }
 
     // Store deployment credentials
