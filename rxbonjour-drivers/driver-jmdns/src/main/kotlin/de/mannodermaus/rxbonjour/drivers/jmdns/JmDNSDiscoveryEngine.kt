@@ -18,8 +18,8 @@ import javax.jmdns.impl.constants.DNSRecordType
 
 private val BONJOUR_TYPE_LOCAL_SUFFIX = ".local."
 
-class JmDNSDiscoveryEngine
-internal constructor(type: String) : DiscoveryEngine {
+internal class JmDNSDiscoveryEngine
+constructor(type: String) : DiscoveryEngine {
 
     // Append type suffix in order to have JmDNS pick up on the resolved services
     private val serviceType = if (type.endsWith(BONJOUR_TYPE_LOCAL_SUFFIX)) type else type + BONJOUR_TYPE_LOCAL_SUFFIX
@@ -36,13 +36,12 @@ internal constructor(type: String) : DiscoveryEngine {
     }
 
     override fun discover(address: InetAddress, callback: DiscoveryCallback) {
+        val jmdns = JmDNS.create(address, address.toString())
+        this.jmdns = jmdns
+        this.listener = JmDNSListener(callback)
 
-        // Setup JmDNS instance & configure it
-        jmdns = JmDNS.create(address, address.toString())
-        listener = JmDNSListener(callback)
-
-        // This will start the discovery
-        jmdns?.addServiceListener(serviceType, listener)
+        // This will start the discovery immediately
+        jmdns.addServiceListener(serviceType, listener)
     }
 
     override fun teardown() {

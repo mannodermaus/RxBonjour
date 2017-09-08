@@ -9,6 +9,12 @@ private val TYPE_PATTERN = Regex("_[a-zA-Z0-9\\-_]+\\.(_tcp|_udp)(\\.[a-zA-Z0-9\
 
 /* Classes */
 
+/**
+ * RxBonjour: Reactive access to Network Service Discovery APIs using RxJava 2.
+ * Obtain an instance through its Builder, configure it by injecting a Driver & a Platform
+ * and create it! After creation, use the instance to start network service discovery
+ * or broadcast operations.
+ */
 class RxBonjour private constructor(
         private val platform: Platform,
         private val driver: Driver) {
@@ -80,7 +86,10 @@ class RxBonjour private constructor(
      * it is highly encouraged to verify this input
      * using {@link #isBonjourType(String)} <b>before</b> calling this method!
      * <p>
-     * When the returned {@link Completable} is unsubscribed from, the broadcast ends.
+     * When the returned {@link Completable} is unsubscribed from, the broadcast ends,
+     * and this is the only instance (aside from error events) where it terminates.
+     * It never emits the onCompleted() event because of that,
+     * so avoid chaining something after this Completable using andThen().
      *
      * @param config    Configuration of the service to advertise
      * @return A {@link Completable} holding the state of the broadcast, valid until unsubscription
@@ -115,6 +124,11 @@ class RxBonjour private constructor(
                 Completable.error(IllegalBonjourTypeException(config.type))
             }
 
+    /**
+     * Configuration and Creation of RxBonjour instances.
+     * Supply a Platform & a Driver to the Builder (provided by separate artifacts)
+     * before creating the RxBonjour instance itself.
+     */
     class Builder {
         private var platform: Platform? = null
         private var driver: Driver? = null
