@@ -41,7 +41,7 @@ private class AndroidConnection
 constructor(val context: Context)
     : PlatformConnection {
 
-    lateinit var multicastLock: WifiManager.MulticastLock
+    private lateinit var multicastLock: WifiManager.MulticastLock
 
     override fun initialize() {
         multicastLock = context.getWifiManager().createMulticastLock(WIFI_MULTICAST_LOCK_TAG)
