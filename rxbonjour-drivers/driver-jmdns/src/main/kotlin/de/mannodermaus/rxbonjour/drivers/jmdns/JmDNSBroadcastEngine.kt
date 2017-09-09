@@ -23,11 +23,7 @@ internal class JmDNSBroadcastEngine : BroadcastEngine {
         this.jmdnsService = config.toJmDNSModel()
 
         // This will start the broadcast immediately
-        try {
-            jmdns.registerService(jmdnsService)
-        } catch (ex: Exception) {
-            callback.broadcastFailed(ex)
-        }
+        jmdns.registerService(jmdnsService)
     }
 
     override fun teardown() {

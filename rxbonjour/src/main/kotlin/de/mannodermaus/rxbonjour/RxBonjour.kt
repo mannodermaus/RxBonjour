@@ -67,8 +67,13 @@ class RxBonjour private constructor(
                                 emitter.onNext(BonjourEvent.Removed(service))
                             }
                         }
-                        val address = platform.getWifiAddress()
-                        discovery.discover(address, callback)
+
+                        try {
+                            val address = platform.getWifiAddress()
+                            discovery.discover(address, callback)
+                        } catch (ex: Exception) {
+                            callback.discoveryFailed(ex)
+                        }
                     }
                 }
 
@@ -119,8 +124,13 @@ class RxBonjour private constructor(
                                 emitter.onError(BroadcastFailedException(driver.name, cause))
                             }
                         }
-                        val address = config.address ?: platform.getWifiAddress()
-                        broadcast.start(address, config, callback)
+
+                        try {
+                            val address = config.address ?: platform.getWifiAddress()
+                            broadcast.start(address, config, callback)
+                        } catch (ex: Exception) {
+                            callback.broadcastFailed(ex)
+                        }
                     }
                 }
 
