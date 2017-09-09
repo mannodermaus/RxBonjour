@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import butterknife.BindView;
@@ -16,9 +18,7 @@ import butterknife.Unbinder;
 import de.mannodermaus.rxbonjour.BonjourEvent;
 import de.mannodermaus.rxbonjour.BonjourService;
 import de.mannodermaus.rxbonjour.RxBonjour;
-import de.mannodermaus.rxbonjour.drivers.jmdns.JmDNSDriver;
-import de.mannodermaus.rxbonjour.example.rv.RvBaseAdapter;
-import de.mannodermaus.rxbonjour.example.rv.RvBaseHolder;
+import de.mannodermaus.rxbonjour.example.rv.Rv;
 import de.mannodermaus.rxbonjour.platforms.android.AndroidPlatform;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -30,18 +30,18 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.rv) de.mannodermaus.rxbonjour.example.rv.Rv rvItems;
+    private static final String LOG_TAG = "RxBonjour Sample";
+
     @BindView(R.id.et_type) EditText etInput;
-    private RvBaseAdapter<BonjourService> adapter;
+    @BindView(R.id.progress_bar) ProgressBar progressBar;
+    @BindView(R.id.spinner) Spinner spDrivers;
+    @BindView(R.id.rv) Rv rvItems;
+
+    private DriverSpinnerAdapter spinnerAdapter;
+    private final ServiceListAdapter listAdapter = new ServiceListAdapter();
+
     private Unbinder unbinder;
-
-    private RxBonjour rxBonjour = new RxBonjour.Builder()
-            .platform(AndroidPlatform.create(this))
-            .driver(JmDNSDriver.create())
-            .create();
-
     private Disposable nsdDisposable = Disposables.empty();
-//    private boolean useNsdManager = false;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,14 +50,21 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup RecyclerView
         rvItems.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        adapter = new RvBaseAdapter<BonjourService>() {
+        rvItems.setEmptyView(findViewById(R.id.tv_empty));
+        rvItems.setAdapter(listAdapter);
+
+        // Setup Spinner
+        spinnerAdapter = new DriverSpinnerAdapter(this);
+        spDrivers.setAdapter(spinnerAdapter);
+        spDrivers.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            protected RvBaseHolder<BonjourService> createViewHolder(LayoutInflater inflater, ViewGroup parent, int viewType) {
-                return new BonjourVH(inflater, parent);
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                restartDiscovery();
             }
-        };
-        rvItems.setEmptyView(ButterKnife.findById(this, R.id.tv_empty));
-        rvItems.setAdapter(adapter);
+
+            @Override public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
     }
 
     @Override protected void onStart() {
@@ -79,20 +86,14 @@ public class MainActivity extends AppCompatActivity {
         unbinder.unbind();
     }
 
-    @OnClick(R.id.button_apply) void onApplyClicked() {
+    @OnClick(R.id.button_apply)
+    void onApplyClicked() {
         CharSequence input = etInput.getText();
         if (input != null && input.length() > 0) {
             // For non-empty input, restart the discovery with the new input
             restartDiscovery();
         }
     }
-
-//    @OnItemSelected(R.id.spinner)
-//    void onSpinnerItemSelected(AdapterView<?> adapter, View view, int position, long id) {
-//        // NsdManager implementation is represented by the second item in the spinner's array
-//        useNsdManager = (position == 1);
-//        restartDiscovery();
-//    }
 
 	/* Begin private */
 
@@ -112,22 +113,48 @@ public class MainActivity extends AppCompatActivity {
         unsubscribe();
 
         // Clear the adapter's items, then start a new discovery
-        adapter.clearItems();
+        listAdapter.clearItems();
+
+        // Construct a new RxBonjour instance with the currently selected Driver.
+        // Usually, you'd simply add the Driver inside the Builder
+        // and provide the entry point to RxBonjour globally,
+        // e.g. through Dependency Injection, or as an instance field.
+        //
+        // RxBonjour rxBonjour = new RxBonjour.Builder()
+        //      .driver(JmDNSDriver.create())
+        //      .platform(AndroidPlatform.create(this))
+        //      .create();
+        //
+        // Since in this sample Driver implementations can be switched,
+        // we're using the SpinnerAdapter for this.
+        DriverSpinnerAdapter.DriverLib driverLibrary = spinnerAdapter.getItem(spDrivers.getSelectedItemPosition());
+        assert driverLibrary != null;
+
+        RxBonjour rxBonjour = new RxBonjour.Builder()
+                .driver(driverLibrary.factory.invoke(this))
+                .platform(AndroidPlatform.create(this))
+                .create();
 
         nsdDisposable = rxBonjour.newDiscovery(type)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe(s -> progressBar.setVisibility(View.VISIBLE))
+                .doOnComplete(() -> progressBar.setVisibility(View.INVISIBLE))
+                .doOnError(e -> progressBar.setVisibility(View.INVISIBLE))
                 .subscribe(
                         event -> {
                             // Depending on the type of event and the availability of the item, adjust the adapter
                             BonjourService item = event.getService();
-                            Log.i("RxBonjour Event", "Event: " + item);
+                            Log.i(LOG_TAG, "Event: " + item);
                             if (event instanceof BonjourEvent.Added) {
-                                if (!adapter.containsItem(item)) adapter.addItem(item);
+                                if (!listAdapter.containsItem(item)) listAdapter.addItem(item);
                             } else if (event instanceof BonjourEvent.Removed) {
-                                if (adapter.containsItem(item)) adapter.removeItem(item);
+                                if (listAdapter.containsItem(item)) listAdapter.removeItem(item);
                             }
                         },
-                        error -> Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show());
+                        error -> {
+                            error.printStackTrace();
+                            Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
     }
 }

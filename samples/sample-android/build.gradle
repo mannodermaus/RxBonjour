@@ -28,9 +28,9 @@ android {
 dependencies {
     implementation project(":rxbonjour")
     implementation project(":driver-jmdns")
+    implementation project(":driver-nsdmanager")
     implementation project(":platform-android")
 
-//    implementation project(':rxbonjour-full')
     api "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"
 
     implementation "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
