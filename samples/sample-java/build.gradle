@@ -1,0 +1,9 @@
+apply plugin: "java"
+
+dependencies {
+    // @formatter:off
+    compile project(":rxbonjour")
+    compile project(":platform-desktop")
+    compile project(":driver-jmdns")
+    // @formatter:on
+}
