@@ -5,15 +5,15 @@ apply plugin: "com.jfrog.bintray"
 
 dependencies {
     // @formatter:off
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"                // Kotlin Foundation
-    compile "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"                       // Reactive extensions
+    api "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"                        // Kotlin Foundation
+    compile "io.reactivex.rxjava2:rxjava:$RXJAVA_VERSION"                           // Reactive extensions
 
-    compileOnly "com.google.android:android:$ANDROID_VERSION"                   // Android Framework
+    compileOnly "com.google.android:android:$ANDROID_VERSION"                       // Android Framework
 
-    testCompile "junit:junit:$JUNIT_VERSION"                                    // Unit Testing
-    testCompile "org.mockito:mockito-core:$MOCKITO_VERSION"                     // Mocking Framework
-    testCompile "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"        // Mocking Framework extensions
-    testCompile "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"      // Mocking Framework extensions
+    testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
+    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                  // Mocking Framework
+    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"     // Mocking Framework extensions
+    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"   // Mocking Framework extensions
     // @formatter:on
 }
 

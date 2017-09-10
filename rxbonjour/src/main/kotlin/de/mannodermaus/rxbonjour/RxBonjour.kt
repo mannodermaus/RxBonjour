@@ -1,3 +1,5 @@
+@file:JvmName("RxBonjourUtils")
+
 package de.mannodermaus.rxbonjour
 
 import io.reactivex.Completable
@@ -157,9 +159,8 @@ class RxBonjour private constructor(
             return RxBonjour(platform!!, driver!!)
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun String.isBonjourType() = this.matches(TYPE_PATTERN)
-    }
 }
+
+/* Extension Functions */
+
+fun String.isBonjourType() = this.matches(TYPE_PATTERN)

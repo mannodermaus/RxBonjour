@@ -25,7 +25,6 @@ android {
 dependencies {
     // @formatter:off
     implementation project(":rxbonjour")
-
     implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"              // Reactive Extensions for Android
 
     testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
