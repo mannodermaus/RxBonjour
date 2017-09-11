@@ -9,16 +9,16 @@ typealias TxtRecords = Map<String, String>
 private val DEFAULT_NAME = "RxBonjour Service"
 private val DEFAULT_PORT = 80
 
-data class BonjourBroadcast(
+data class BonjourBroadcastConfig @JvmOverloads constructor(
         val type: String,
+        val name: String? = DEFAULT_NAME,
         val address: InetAddress? = null,
-        val port: Int = DEFAULT_PORT,
-        val name: String = DEFAULT_NAME,
-        val txtRecords: TxtRecords = emptyMap())
+        val port: Int? = DEFAULT_PORT,
+        val txtRecords: TxtRecords? = emptyMap())
 
 data class BonjourService(
-        val name: String,
         val type: String,
+        val name: String,
         val v4Host: Inet4Address?,
         val v6Host: Inet6Address?,
         val port: Int,

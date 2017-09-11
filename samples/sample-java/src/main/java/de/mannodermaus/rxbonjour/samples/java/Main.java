@@ -1,8 +1,8 @@
 package de.mannodermaus.rxbonjour.samples.java;
 
 import de.mannodermaus.rxbonjour.RxBonjour;
-import de.mannodermaus.rxbonjour.platforms.desktop.DesktopPlatform;
 import de.mannodermaus.rxbonjour.drivers.jmdns.JmDNSDriver;
+import de.mannodermaus.rxbonjour.platforms.desktop.DesktopPlatform;
 
 public class Main {
 

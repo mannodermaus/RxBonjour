@@ -14,6 +14,7 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.OnClick
 import butterknife.Unbinder
+import de.mannodermaus.rxbonjour.BonjourBroadcastConfig
 import de.mannodermaus.rxbonjour.BonjourEvent
 import de.mannodermaus.rxbonjour.RxBonjour
 import de.mannodermaus.rxbonjour.isBonjourType
@@ -21,6 +22,7 @@ import de.mannodermaus.rxbonjour.platforms.android.AndroidPlatform
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposables
 import io.reactivex.schedulers.Schedulers
+import java.net.InetAddress
 
 private val LOG_TAG = "RxBonjour Sample"
 
@@ -126,6 +128,19 @@ class MainActivity : AppCompatActivity() {
                 .driver(driverLibrary.factory.invoke(this))
                 .platform(AndroidPlatform.create(this))
                 .create()
+
+        val broadcastConfig = BonjourBroadcastConfig(
+                type = "_http._tcp",
+                name = "My Bonjour Service",
+                address = null,
+                port = 13337,
+                txtRecords = mapOf(
+                        "my.record" to "my value",
+                        "other.record" to "0815"))
+        val disposable = rxBonjour.newBroadcast(broadcastConfig)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
 
         nsdDisposable = rxBonjour.newDiscovery(type)
                 .subscribeOn(Schedulers.io())

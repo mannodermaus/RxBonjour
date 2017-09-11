@@ -101,7 +101,7 @@ class RxBonjour private constructor(
      * @param config    Configuration of the service to advertise
      * @return A {@link Completable} holding the state of the broadcast, valid until unsubscription
      */
-    fun newBroadcast(config: BonjourBroadcast): Completable =
+    fun newBroadcast(config: BonjourBroadcastConfig): Completable =
             if (config.type.isBonjourType()) {
                 // New Broadcast request for the Driver
                 val broadcast = driver.createBroadcast()
