@@ -1,0 +1,165 @@
+// ------------------------------------------------------------------------------------------------
+// Deployment Setup
+//
+// Releases are pushed to jcenter via Bintray, while snapshots are pushed to Sonatype OSS.
+// This scripts defines the necessary tasks to push new releases and snapshots using Gradle tasks.
+// ------------------------------------------------------------------------------------------------
+
+// The target platform (either "java" or "android", fails on other values)
+def targetPlatform = project.ext.targetPlatform
+if (!["java", "android"].contains(targetPlatform)) {
+    throw new ProjectConfigurationException("Project '$project.name' doesn't provide a valid 'targetPlatform': Illegal value '$targetPlatform'", null)
+}
+
+// The artifact ID of the deployed package
+def deployedArtifactId = project.ext.artifact
+
+project.logger.info("Configure deployment for project '$project.name' using target platform '$targetPlatform'…")
+
+// Apply required plugins
+apply plugin: "com.jfrog.bintray"
+
+if (targetPlatform == "java") {
+    apply plugin: "maven"
+    apply plugin: "maven-publish"
+
+} else if (targetPlatform == "android") {
+    apply plugin: "com.github.dcendents.android-maven"
+    apply plugin: "digital.wup.android-maven-publish"
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Include sources.jar archive in each release
+//
+if (targetPlatform == "java") {
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = "sources"
+        from sourceSets.main.allSource
+    }
+} else {
+    task sourcesJar(type: Jar) {
+        classifier = "sources"
+        from android.sourceSets.main.java.srcDirs
+    }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Include javadoc.jar archive in each release
+//
+if (targetPlatform == "android") {
+    task javadoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        excludes = ["**/*.kt"]
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = "javadoc"
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+group = GROUP_ID
+version = VERSION_NAME
+
+def pomConfig = {
+    licenses {
+        license {
+            name LICENSE_NAME
+            url LICENSE_URL
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id DEVELOPER_ID
+            name DEVELOPER_NAME
+            email DEVELOPER_EMAIL
+        }
+    }
+
+    scm {
+        url WEB_URL
+    }
+}
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            if (targetPlatform == "android") {
+                // Supplied by android-maven-publish
+                from components.android
+            } else {
+                // Supplied by maven-publish
+                from components.java
+            }
+            artifact sourcesJar
+            artifact javadocJar
+            groupId GROUP_ID
+            artifactId deployedArtifactId
+            version VERSION_NAME
+            pom.withXml {
+                def root = asNode()
+                root.appendNode("description", DESCRIPTION)
+                root.appendNode("name", deployedArtifactId)
+                root.appendNode("url", GIT_URL)
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+// Copy POM to location expected by Bintray
+task copyPom(type: Copy) {
+    from "build/publications/library"
+    into "build/poms"
+    include "pom-default.xml"
+}
+
+publish.dependsOn copyPom
+
+project.configure(project) {
+    if (project.version.endsWith("-SNAPSHOT")) {
+        // Configure deployment of snapshot versions to Sonatype OSS
+        project.publishing {
+            repositories {
+                maven {
+                    name "snapshot"
+                    credentials {
+                        username project.ext.sonatypeUser
+                        password project.ext.sonatypePass
+                    }
+                    url "https://oss.sonatype.org/content/repositories/snapshots"
+                }
+            }
+        }
+
+    } else {
+        // Configure deployment of release versions to Bintray
+        project.bintray {
+            user = project.ext.bintrayUser
+            key = project.ext.bintrayKey
+            configurations = ["archives"]
+            dryRun = false
+
+            pkg {
+                repo = "maven"
+                name = LIBRARY_NAME
+                userOrg = project.ext.bintrayUser
+                licenses = [LICENSE_ID]
+                publish = true
+                publicDownloadNumbers = true
+                vcsUrl = GIT_URL
+                version {
+                    name = VERSION_NAME
+                    desc = DESCRIPTION
+                }
+            }
+        }
+    }
+}

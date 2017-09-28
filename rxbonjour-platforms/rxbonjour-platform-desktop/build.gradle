@@ -1,0 +1,19 @@
+apply plugin: "java-library"
+apply plugin: "kotlin"
+
+dependencies {
+    // @formatter:off
+    implementation project(":rxbonjour")
+
+    testCompile "junit:junit:$JUNIT_VERSION"                                    // Unit Testing
+    testCompile "org.mockito:mockito-core:$MOCKITO_VERSION"                     // Mocking Framework
+    testCompile "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"        // Mocking Framework extensions
+    testCompile "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"      // Mocking Framework extensions
+    // @formatter:on
+}
+
+// Deployment Setup
+ext.artifact = "$ARTIFACT_ID-platform-desktop"
+ext.targetPlatform = "java"
+
+apply from: "$rootDir/scripts/deploy.gradle"

@@ -10,13 +10,15 @@
       </option>
       <option name="taskNames">
         <list>
+          <option value="clean" />
+          <option value="build" />
+          <option value="generatePomFileForLibraryPublication" />
+          <option value="publish" />
           <option value="bintrayUpload" />
         </list>
       </option>
       <option name="vmOptions" value="" />
     </ExternalSystemSettings>
-    <method>
-      <option name="Gradle.BeforeRunTask" enabled="true" tasks=":rxbonjour:clean :rxbonjour:assembleRelease :rxbonjour:javadocJar :rxbonjour:sourcesJar generatePomFileForLibraryPublication" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
-    </method>
+    <method />
   </configuration>
 </component>

@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RxBonjour Example</string>
+
+    <string name="tv_empty">No results…</string>
+    <string name="tv_notxtrecords">No TXT records resolved</string>
+    <string name="et_initialtype">_http._tcp</string>
+    <string name="spinner_prompt">Select RxBonjour Driver</string>
+    <string name="hint_type">Enter Service Type (e.g. \'_http._tcp\')…</string>
+    <string name="button_apply">Apply</string>
+    <string name="toast_invalidtype">\'%s\' is not a valid Bonjour type!</string>
+    <string name="format_host_address_v4">IPv4: %1$s:%2$d</string>
+    <string name="format_host_address_v6">IPv6: %1$s:%2$d</string>
+    <string name="tv_useddriver">Used Driver:</string>
+</resources>

@@ -1,86 +1,127 @@
 # RxBonjour
-A wrapper around Android's network service discovery functionalities with a support implementation for devices below Jelly Bean, going down all the way to API level 14.
+A reactive wrapper around network service discovery functionalities for Kotlin and Java.
 
 ## Download
 
-`RxBonjour` is available on `jcenter()`:
+**RxBonjour 2** is available on `jcenter()` and consists of three distinct components, all of which are detailed below.
 
 ```groovy
-api "de.mannodermaus.rxjava2:rxbonjour:2.0.0-beta2"
+// Always include this
+implementation "de.mannodermaus.rxjava2:rxbonjour:2.0.0-RC1"
+
+// Example: Usage on Android with JmDNS
+implementation "de.mannodermaus.rxjava2:rxbonjour-platform-android:2.0.0-RC1"
+implementation "de.mannodermaus.rxjava2:rxbonjour-driver-jmdns:2.0.0-RC1"
 ```
 
-For the RxJava 1 version, have a look at the [1.x][onex] branch.
+For the (less flexible & Android-only) RxJava 1 version, have a look at the [1.x][onex] branch.
 
-## Discovery
+## Components
 
-Create a network service discovery request using `RxBonjour.newDiscovery(Context, String)` and subscribe to the returned `Flowable`:
+**RxBonjour 2** is composed of a core library, a `Platform` to run on, and a `Driver` to access the NSD stack.
 
-```java
-RxBonjour.newDiscovery(this, "_http._tcp")
-	.subscribe(bonjourEvent -> {
-		BonjourService item = bonjourEvent.getService();
-		switch (bonjourEvent.getType()) {
-			case ADDED:
-				// Called when a service was discovered
-				break;
+### Core Library (rxbonjour)
 
-			case REMOVED:
-				// Called when a service is no longer visible
-				break;
-		}
-	}, error -> {
-		// Service discovery failed, for instance
-	});
-```
+The main entry point to the API, `RxBonjour` is contained in this library. All other libraries depend on this common core.
 
-Make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Flowable.
+### Platform Library (rxbonjour-platform-xxx)
 
-## Registration
+Provides access to the host device's IP and Network controls.
+During the creation of your `RxBonjour` instance, you attach exactly 1 implementation of the `Platform` interface.
+ 
+Below is a list of available `Platform` libraries supported by **RxBonjour 2**:
 
-Create a service to broadcast using `RxBonjour.newBroadcast(Context, String)` and subscribe to the returned `Flowable` of the broadcast object:
+|Group|Artifact|Description|
+|---|---|---|
+|`de.mannodermaus.rxjava2`|`rxbonjour-platform-android`|Android-aware Platform, utilizing `WifiManager` APIs|
+|`de.mannodermaus.rxjava2`|`rxbonjour-platform-desktop`|Default JVM Platform|
 
-```java
-BonjourBroadcast<?> broadcast = RxBonjour.newBroadcast("_http._tcp")
-	.name("My Broadcast")
-	.port(65335)
-	.build();
-	
-broadcast.start(this)
-	.subscribe(bonjourEvent -> {
-		// Same as above
-	});
-```
+#### About the AndroidPlatform
 
-Again, make sure to off-load this work onto a background thread, since RxBonjour won't enforce any threading on the Flowable.
-
-## Implementations
-
-RxBonjour comes with two implementations for network service discovery. By default, the support implementation is used because of the unreliable state of the `NsdManager` APIs and known bugs with that. If you **really** want to use `NsdManager` on devices running Jelly Bean and up though, you can specify this when creating service discovery Flowables:
-
-```java
-// If you're feeling real and ready to reboot your device once NsdManager breaks, pass in "true" to use it for supported devices
-RxBonjour.newDiscovery(this, "_http._tcp", true)
-		.subscribe(bonjourEvent -> {
-			// ...
-		}, error -> {
-			// ...
-		});
-```
-
-### NsdManager implementation (v16)
-
-On devices running Jelly Bean and up, Android's native Network Service Discovery API, centered around `NsdManager`, can be used.
-
-### Support implementation (v14)
-
-The support implementation utilizes [jmDNS][jmdns] and a `WifiManager` multicast lock as its service discovery backbone;
-because of this, including this library in your application's dependencies automatically adds the following permissions to your `AndroidManifest.xml`, in order to allow jmDNS to do its thing:
+When running on Android, the `rxbonjour-platform-android` has to be applied to the module.
+Doing so will add the following permissions to your `AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
 ```
+
+### Driver Library (rxbonjour-driver-xxx)
+
+Provides the connection to a Network Service Discovery stack.
+During the creation of your `RxBonjour` instance, you attach exactly 1 implementation of the `Driver` interface.
+
+Below is a list of available `Driver` libraries supported by **RxBonjour 2**:
+
+|Group|Artifact|Description|
+|---|---|---|
+|`de.mannodermaus.rxjava2`|`rxbonjour-driver-jmdns`|Service Discovery with [JmDNS][jmdns]|
+|`de.mannodermaus.rxjava2`|`rxbonjour-driver-nsdmanager`|Service Discovery with Android's [NsdManager][nsdmanager] APIs|
+
+## Usage
+
+### Creation
+
+Configure a `RxBonjour` service object using its `Builder`,
+attaching your desired `Platform` and `Driver` implementations.
+If you forget to provide either dependency, an Exception will be thrown:
+
+```kotlin
+val rxBonjour = RxBonjour.Builder()
+    .platform(AndroidPlatform.create(this))
+    .driver(JmDNSDriver.create())
+    .create()
+```
+
+Your `RxBonjour` is ready for use now!
+
+### Discovery
+
+Create a network service discovery request using `RxBonjour#newDiscovery(String)`:
+
+```kotlin
+val disposable = rxBonjour.newDiscovery("_http._tcp")
+    .subscribeOn(Schedulers.io())
+    .observeOn(AndroidSchedulers.mainThread())
+    .subscribe(
+        { event ->
+            when(event) {
+                is BonjourEvent.Added -> println("Resolved Service: ${event.service}")
+                is BonjourEvent.Removed -> println("Lost Service: ${event.service}")
+            }
+        },
+        { error -> println("Error during Discovery: ${error.message}") }
+    )
+```
+
+Make sure to off-load this work onto a background thread, since the library won't enforce any threading. 
+In this example, *RxAndroid* is utilized to return the events back to Android's main thread.
+
+## Registration
+
+Configure your advertised service & start the broadcast using `RxBonjour#newBroadcast(BonjourBroadcastConfig)`.
+The only required property to set on a `BonjourBroadcastConfig` is its Bonjour type, the remaining parameters
+are filled with defaults as stated in the comments below:
+
+```kotlin
+val broadcastConfig = BonjourBroadcastConfig(
+        type = "_http._tcp",
+        name = "My Bonjour Service",        // default: "RxBonjour Service"
+        address = null,                     // default: Fallback to WiFi address provided by Platform
+        port = 13337,                       // default: 80
+        txtRecords = mapOf(                 // default: Empty Map
+                "my.record" to "my value",
+                "other.record" to "0815"))
+                
+val disposable = rxBonjour.newBroadcast(broadcastConfig)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe()
+```
+
+The broadcast is valid until the returned `Completable` is unsubscribed from.
+Again, make sure to off-load this work onto a background thread like above, since the library won't do it for you.
 
 ## License
 
@@ -100,6 +141,7 @@ because of this, including this library in your application's dependencies autom
 
 	
  [jmdns]: https://github.com/openhab/jmdns
+ [nsdmanager]: https://developer.android.com/reference/android/net/nsd/NsdManager
  [jit]: https://jitpack.io
  [onex]: https://github.com/aurae/RxBonjour/tree/1.x
 	

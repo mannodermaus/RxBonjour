@@ -1,0 +1,39 @@
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion TARGET_SDK_VERSION
+        versionName VERSION_NAME
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+    }
+}
+
+dependencies {
+    // @formatter:off
+    implementation project(":rxbonjour")
+    implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"              // Reactive Extensions for Android
+
+    testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
+    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                  // Mocking Framework
+    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"     // Mocking Framework extensions
+    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"   // Mocking Framework extensions
+    // @formatter:on
+}
+
+// Deployment Setup
+ext.artifact = "$ARTIFACT_ID-platform-android"
+ext.targetPlatform = "android"
+
+apply from: "$rootDir/scripts/deploy.gradle"

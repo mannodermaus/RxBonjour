@@ -8,6 +8,8 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$GRADLE_PLUGIN_VERSION"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$BINTRAY_PLUGIN_VERSION"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
+        classpath "com.github.dcendents:android-maven-gradle-plugin:$DCENDENTS_MAVEN_PLUGIN_VERSION"
 
         // TODO Moving to Jitpack until the official 3.0.0 Release of android-maven-publish
         // (https://github.com/wupdigital/android-maven-publish/issues/2)
@@ -30,17 +32,21 @@ if (credentialsFile.exists()) {
 }
 
 // @formatter:off
-def bintrayUser     = properties.get("BINTRAY_USER",    System.getenv("bintrayUser"))
-def bintrayKey      = properties.get("BINTRAY_KEY",     System.getenv("bintrayKey"))
+def bintrayUser     = properties.getProperty("BINTRAY_USER",    System.getenv("bintrayUser"))
+def bintrayKey      = properties.getProperty("BINTRAY_KEY",     System.getenv("bintrayKey"))
+def sonatypeUser    = properties.getProperty("SONATYPE_USER",   System.getenv("sonatypeUser"))
+def sonatypePass    = properties.getProperty("SONATYPE_PASS",   System.getenv("sonatypePass"))
 // @formatter:on
 
 allprojects {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
 
     // Store deployment credentials
     ext.bintrayUser = bintrayUser
     ext.bintrayKey = bintrayKey
+    ext.sonatypeUser = sonatypeUser
+    ext.sonatypePass = sonatypePass
 }
