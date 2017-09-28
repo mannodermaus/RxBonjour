@@ -1,6 +1,6 @@
 # RxBonjour
 
-[![Travis Build Status](https://travis-ci.org/mannodermaus/RxBonjour.svg?branch=master)][travisci]
+[![Travis Build Status](https://travis-ci.org/mannodermaus/RxBonjour.svg?branch=2.x)][travisci]
 
 A reactive wrapper around network service discovery functionalities for Kotlin and Java.
 
