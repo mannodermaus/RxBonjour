@@ -7,11 +7,11 @@ A reactive wrapper around network service discovery functionalities for Kotlin a
 
 ```groovy
 // Always include this
-implementation "de.mannodermaus.rxjava2:rxbonjour:2.0.0-SNAPSHOT"
+implementation "de.mannodermaus.rxjava2:rxbonjour:2.0.0-RC1"
 
 // Example: Usage on Android with JmDNS
-implementation "de.mannodermaus.rxjava2:rxbonjour-platform-android:2.0.0-SNAPSHOT"
-implementation "de.mannodermaus.rxjava2:rxbonjour-driver-jmdns:2.0.0-SNAPSHOT"
+implementation "de.mannodermaus.rxjava2:rxbonjour-platform-android:2.0.0-RC1"
+implementation "de.mannodermaus.rxjava2:rxbonjour-driver-jmdns:2.0.0-RC1"
 ```
 
 For the (less flexible & Android-only) RxJava 1 version, have a look at the [1.x][onex] branch.

@@ -1,7 +1,5 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-apply plugin: "digital.wup.android-maven-publish"
-apply plugin: "com.jfrog.bintray"
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION

@@ -1,7 +1,5 @@
 apply plugin: "java-library"
 apply plugin: "kotlin"
-apply plugin: "maven-publish"
-apply plugin: "com.jfrog.bintray"
 
 dependencies {
     // @formatter:off

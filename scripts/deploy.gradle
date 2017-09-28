@@ -14,6 +14,14 @@ if (!["java", "android"].contains(targetPlatform)) {
 // The artifact ID of the deployed package
 def deployedArtifactId = project.ext.artifact
 
+// Apply required plugins
+if (targetPlatform == "java") {
+    apply plugin: "maven-publish"
+} else {
+    apply plugin: "digital.wup.android-maven-publish"
+}
+apply plugin: "com.jfrog.bintray"
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Include sources.jar archive in each release
 //
