@@ -30,4 +30,8 @@ data class BonjourService(
 sealed class BonjourEvent(val service: BonjourService) {
     class Added(service: BonjourService) : BonjourEvent(service)
     class Removed(service: BonjourService) : BonjourEvent(service)
+
+    override fun toString(): String {
+        return "BonjourEvent{${javaClass.simpleName}: $service}"
+    }
 }

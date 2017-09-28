@@ -37,9 +37,7 @@ private constructor(private val context: Context) : Platform {
     }
 }
 
-private class AndroidConnection
-constructor(val context: Context)
-    : PlatformConnection {
+private class AndroidConnection(val context: Context) : PlatformConnection {
 
     private lateinit var multicastLock: WifiManager.MulticastLock
 

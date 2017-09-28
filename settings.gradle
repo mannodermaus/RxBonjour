@@ -12,5 +12,5 @@ project(":platform-desktop").projectDir = new File("rxbonjour-platforms/platform
 
 include ":sample-android"
 project(":sample-android").projectDir = new File("samples/sample-android")
-include ":sample-java"
-project(":sample-java").projectDir = new File("samples/sample-java")
+include ':sample-desktop'
+project(":sample-desktop").projectDir = new File("samples/sample-desktop")
