@@ -24,7 +24,7 @@ interface DiscoveryCallback {
 }
 
 interface BroadcastEngine : Engine {
-    fun start(address: InetAddress, config: BonjourBroadcast, callback: BroadcastCallback)
+    fun start(address: InetAddress, config: BonjourBroadcastConfig, callback: BroadcastCallback)
 }
 
 interface BroadcastCallback {

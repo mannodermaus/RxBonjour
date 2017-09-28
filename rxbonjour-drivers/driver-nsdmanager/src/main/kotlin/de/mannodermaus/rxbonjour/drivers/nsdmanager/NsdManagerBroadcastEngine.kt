@@ -3,7 +3,7 @@ package de.mannodermaus.rxbonjour.drivers.nsdmanager
 import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
-import de.mannodermaus.rxbonjour.BonjourBroadcast
+import de.mannodermaus.rxbonjour.BonjourBroadcastConfig
 import de.mannodermaus.rxbonjour.BroadcastCallback
 import de.mannodermaus.rxbonjour.BroadcastEngine
 import java.net.InetAddress
@@ -16,7 +16,7 @@ internal class NsdManagerBroadcastEngine(private val context: Context) : Broadca
     override fun initialize() {
     }
 
-    override fun start(address: InetAddress, config: BonjourBroadcast, callback: BroadcastCallback) {
+    override fun start(address: InetAddress, config: BonjourBroadcastConfig, callback: BroadcastCallback) {
         val nsdManager = context.getNsdManager()
         val listener = NsdRegistrationListener(callback)
 

@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.os.Build
-import de.mannodermaus.rxbonjour.BonjourBroadcast
+import de.mannodermaus.rxbonjour.BonjourBroadcastConfig
 import de.mannodermaus.rxbonjour.BonjourService
 import de.mannodermaus.rxbonjour.TxtRecords
 import java.net.Inet4Address
@@ -25,9 +25,9 @@ internal fun NsdServiceInfo.getTxtRecords(): TxtRecords {
     }
 }
 
-internal fun NsdServiceInfo.setTxtRecords(records: TxtRecords) {
+internal fun NsdServiceInfo.setTxtRecords(records: TxtRecords?) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        records.forEach { (key, value) ->
+        records?.forEach { (key, value) ->
             setAttribute(key, value)
         }
     }
@@ -41,7 +41,7 @@ internal fun NsdServiceInfo.toLibraryModel() = BonjourService(
         port = this.port,
         txtRecords = this.getTxtRecords())
 
-internal fun BonjourBroadcast.toNsdModel() = NsdServiceInfo().apply {
+internal fun BonjourBroadcastConfig.toNsdModel() = NsdServiceInfo().apply {
     val model = this@toNsdModel
 
     serviceType = model.type

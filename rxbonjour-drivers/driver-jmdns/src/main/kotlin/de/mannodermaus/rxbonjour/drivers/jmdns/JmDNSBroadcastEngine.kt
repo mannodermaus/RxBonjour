@@ -1,6 +1,6 @@
 package de.mannodermaus.rxbonjour.drivers.jmdns
 
-import de.mannodermaus.rxbonjour.BonjourBroadcast
+import de.mannodermaus.rxbonjour.BonjourBroadcastConfig
 import de.mannodermaus.rxbonjour.BonjourSchedulers
 import de.mannodermaus.rxbonjour.BroadcastCallback
 import de.mannodermaus.rxbonjour.BroadcastEngine
@@ -8,6 +8,8 @@ import io.reactivex.Completable
 import java.net.InetAddress
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceInfo
+
+private val LOCAL_DOMAIN_SUFFIX = ".local."
 
 internal class JmDNSBroadcastEngine : BroadcastEngine {
 
@@ -17,7 +19,7 @@ internal class JmDNSBroadcastEngine : BroadcastEngine {
     override fun initialize() {
     }
 
-    override fun start(address: InetAddress, config: BonjourBroadcast, callback: BroadcastCallback) {
+    override fun start(address: InetAddress, config: BonjourBroadcastConfig, callback: BroadcastCallback) {
         val jmdns = JmDNS.create(address, address.toString())
         this.jmdns = jmdns
         this.jmdnsService = config.toJmDNSModel()
@@ -41,8 +43,14 @@ internal class JmDNSBroadcastEngine : BroadcastEngine {
 
 /* Extension Functions */
 
-private fun BonjourBroadcast.toJmDNSModel() = ServiceInfo.create(
-        /* type */ this.type,
+private fun String.ensureLocalDomain(): String =
+        if (this.endsWith(LOCAL_DOMAIN_SUFFIX))
+            this
+        else
+            "$this$LOCAL_DOMAIN_SUFFIX"
+
+private fun BonjourBroadcastConfig.toJmDNSModel() = ServiceInfo.create(
+        /* type */ this.type.ensureLocalDomain(),
         /* name */ this.name,
         /* port */ this.port,
         /* weight */ 0,
