@@ -23,7 +23,7 @@ dependencies {
 
 group = GROUP_ID
 version = VERSION_NAME
-ext.artifact = "$ARTIFACT_ID-core"
+ext.artifact = ARTIFACT_ID
 
 // Include sources.jar archive in each release
 task sourcesJar(type: Jar, dependsOn: classes) {
