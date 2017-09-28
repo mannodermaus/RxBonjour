@@ -22,7 +22,6 @@ import de.mannodermaus.rxbonjour.platforms.android.AndroidPlatform
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposables
 import io.reactivex.schedulers.Schedulers
-import java.net.InetAddress
 
 private val LOG_TAG = "RxBonjour Sample"
 

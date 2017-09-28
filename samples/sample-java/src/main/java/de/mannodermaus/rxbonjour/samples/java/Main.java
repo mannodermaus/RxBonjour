@@ -13,7 +13,8 @@ public class Main {
                 .create();
 
         rxBonjour.newDiscovery("_ssh._tcp")
-                .blockingSubscribe(event -> System.out.println("Event: " + event),
+                .blockingSubscribe(
+                        event -> System.out.println("Event: " + event),
                         error -> System.err.println("Error: " + error.getMessage()));
     }
 }
