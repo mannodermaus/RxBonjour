@@ -20,7 +20,7 @@ dependencies {
 
 group = GROUP_ID
 version = VERSION_NAME
-ext.artifact = "$ARTIFACT_ID-platform-java"
+ext.artifact = "$ARTIFACT_ID-platform-desktop"
 
 // Include sources.jar archive in each release
 task sourcesJar(type: Jar, dependsOn: classes) {
