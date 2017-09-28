@@ -6,11 +6,12 @@ A reactive wrapper around network service discovery functionalities for Kotlin a
 **RxBonjour 2** is available on `jcenter()` and consists of three distinct components, all of which are detailed below.
 
 ```groovy
-implementation "de.mannodermaus.rxjava2:rxbonjour:2.0.0-RC1"
+// Always include this
+implementation "de.mannodermaus.rxjava2:rxbonjour:2.0.0-SNAPSHOT"
 
 // Example: Usage on Android with JmDNS
-implementation "de.mannodermaus.rxjava2:rxbonjour-platform-android:2.0.0-RC1"
-implementation "de.mannodermaus.rxjava2:rxbonjour-driver-jmdns:2.0.0-RC1"
+implementation "de.mannodermaus.rxjava2:rxbonjour-platform-android:2.0.0-SNAPSHOT"
+implementation "de.mannodermaus.rxjava2:rxbonjour-driver-jmdns:2.0.0-SNAPSHOT"
 ```
 
 For the (less flexible & Android-only) RxJava 1 version, have a look at the [1.x][onex] branch.
@@ -33,7 +34,7 @@ Below is a list of available `Platform` libraries supported by **RxBonjour 2**:
 |Group|Artifact|Description|
 |---|---|---|
 |`de.mannodermaus.rxjava2`|`rxbonjour-platform-android`|Android-aware Platform, utilizing `WifiManager` APIs|
-|`de.mannodermaus.rxjava2`|`rxbonjour-platform-desktop`|tba.|
+|`de.mannodermaus.rxjava2`|`rxbonjour-platform-desktop`|Default JVM Platform|
 
 #### About the AndroidPlatform
 
