@@ -2,12 +2,17 @@ buildscript {
     repositories {
         jcenter()
         google()
+        maven { url "https://jitpack.io" }
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$GRADLE_PLUGIN_VERSION"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$BINTRAY_PLUGIN_VERSION"
-        classpath "digital.wup:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
+
+        // TODO Moving to Jitpack until the official 3.0.0 Release of android-maven-publish
+        // (https://github.com/wupdigital/android-maven-publish/issues/2)
+        // classpath "digital.wup:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
+        classpath "com.github.wupdigital:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
     }
 }
 
