@@ -7,7 +7,7 @@
 
 SLUG="mannodermaus/RxBonjour"
 JDK="oraclejdk8"
-BRANCH="development"
+BRANCH="2.x"
 
 set -e
 

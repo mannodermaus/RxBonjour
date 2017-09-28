@@ -14,13 +14,19 @@ if (!["java", "android"].contains(targetPlatform)) {
 // The artifact ID of the deployed package
 def deployedArtifactId = project.ext.artifact
 
+project.logger.info("Configure deployment for project '$project.name' using target platform '$targetPlatform'…")
+
 // Apply required plugins
+apply plugin: "com.jfrog.bintray"
+
 if (targetPlatform == "java") {
+    apply plugin: "maven"
     apply plugin: "maven-publish"
-} else {
+
+} else if (targetPlatform == "android") {
+    apply plugin: "com.github.dcendents.android-maven"
     apply plugin: "digital.wup.android-maven-publish"
 }
-apply plugin: "com.jfrog.bintray"
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Include sources.jar archive in each release
@@ -143,9 +149,9 @@ project.configure(project) {
 
             pkg {
                 repo = "maven"
-                name = deployedArtifactId
+                name = LIBRARY_NAME
                 userOrg = project.ext.bintrayUser
-                licenses = [LICENSE_NAME]
+                licenses = [LICENSE_ID]
                 publish = true
                 publicDownloadNumbers = true
                 vcsUrl = GIT_URL
