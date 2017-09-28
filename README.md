@@ -1,4 +1,7 @@
 # RxBonjour
+
+[![Travis Build Status](https://travis-ci.org/mannodermaus/RxBonjour.svg?branch=master)][travisci]
+
 A reactive wrapper around network service discovery functionalities for Kotlin and Java.
 
 ## Download
@@ -143,5 +146,6 @@ Again, make sure to off-load this work onto a background thread like above, sinc
  [jmdns]: https://github.com/openhab/jmdns
  [nsdmanager]: https://developer.android.com/reference/android/net/nsd/NsdManager
  [jit]: https://jitpack.io
- [onex]: https://github.com/aurae/RxBonjour/tree/1.x
+ [onex]: https://github.com/mannodermaus/RxBonjour/tree/1.x
+ [travisci]: https://travis-ci.org/mannodermaus/RxBonjour
 	
