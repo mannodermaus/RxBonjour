@@ -1,5 +1,6 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
+apply plugin: "de.mannodermaus.android-junit5"
 
 android {
     compileSdkVersion COMPILE_SDK_VERSION
@@ -25,10 +26,8 @@ dependencies {
     implementation project(":rxbonjour")
     implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"              // Reactive Extensions for Android
 
-    testImplementation "junit:junit:$JUNIT_VERSION"                                 // Unit Testing
-    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"                  // Mocking Framework
-    testImplementation "org.powermock:powermock-api-mockito:$POWERMOCK_VERSION"     // Mocking Framework extensions
-    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"   // Mocking Framework extensions
+    testImplementation junit5()
+    testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
     // @formatter:on
 }
 

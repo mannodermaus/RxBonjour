@@ -24,14 +24,12 @@ data class BonjourService(
         val port: Int,
         val txtRecords: TxtRecords = emptyMap()) {
 
-    val host: InetAddress = v4Host ?: v6Host!!
+    val host: InetAddress? = v4Host ?: v6Host
 }
 
 sealed class BonjourEvent(val service: BonjourService) {
     class Added(service: BonjourService) : BonjourEvent(service)
     class Removed(service: BonjourService) : BonjourEvent(service)
 
-    override fun toString(): String {
-        return "BonjourEvent{${javaClass.simpleName}: $service}"
-    }
+    override fun toString(): String = "BonjourEvent{${javaClass.simpleName}: $service}"
 }
