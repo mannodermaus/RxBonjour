@@ -3,6 +3,7 @@ buildscript {
         jcenter()
         google()
         maven { url "https://jitpack.io" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     }
 
     dependencies {
@@ -10,6 +11,8 @@ buildscript {
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$BINTRAY_PLUGIN_VERSION"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
         classpath "com.github.dcendents:android-maven-gradle-plugin:$DCENDENTS_MAVEN_PLUGIN_VERSION"
+        classpath "de.mannodermaus.gradle.plugins:android-junit5:$ANDROID_JUNIT5_PLUGIN_VERSION"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:$JAVA_JUNIT5_PLUGIN_VERSION"
 
         // TODO Moving to Jitpack until the official 3.0.0 Release of android-maven-publish
         // (https://github.com/wupdigital/android-maven-publish/issues/2)
