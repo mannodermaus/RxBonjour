@@ -8,7 +8,7 @@ dependencies {
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$JUNIT_JUPITER_VERSION"         // Unit Testing
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$JUNIT_JUPITER_VERSION"         // Unit Testing
-	testRuntimeOnly "org.junit.platform:junit-platform-launcher:$JUNIT_PLATFORM_VERSION"    // Unit Testing Runtime
+	testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
     // @formatter:on
 }
 
