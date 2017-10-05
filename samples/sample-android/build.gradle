@@ -3,45 +3,45 @@ apply plugin: "kotlin-android"
 apply plugin: "kotlin-kapt"
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
+  compileSdkVersion COMPILE_SDK_VERSION
+  buildToolsVersion BUILD_TOOLS_VERSION
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
 
-    defaultConfig {
-        applicationId "de.mannodermaus.rxbonjour.samples.android"
-        minSdkVersion 16
-        targetSdkVersion TARGET_SDK_VERSION
-        versionCode 1
-        versionName VERSION_NAME
-    }
+  defaultConfig {
+    applicationId "de.mannodermaus.rxbonjour.samples.android"
+    minSdkVersion 16
+    targetSdkVersion TARGET_SDK_VERSION
+    versionCode 1
+    versionName VERSION_NAME
+  }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android.txt")
-        }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile("proguard-android.txt")
     }
+  }
 
-    sourceSets {
-        main.java.srcDirs += "src/main/kotlin"
-    }
+  sourceSets {
+    main.java.srcDirs += "src/main/kotlin"
+  }
 }
 
 dependencies {
-    implementation project(":rxbonjour")
-    implementation project(":rxbonjour-driver-jmdns")
-    implementation project(":rxbonjour-driver-nsdmanager")
-    implementation project(":rxbonjour-platform-android")
+  implementation project(":rxbonjour")
+  implementation project(":rxbonjour-driver-jmdns")
+  implementation project(":rxbonjour-driver-nsdmanager")
+  implementation project(":rxbonjour-platform-android")
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
-    implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"
-    implementation "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
-    implementation "com.android.support:recyclerview-v7:$SUPPORT_LIBRARY_VERSION"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
+  implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"
+  implementation "com.android.support:appcompat-v7:$SUPPORT_LIBRARY_VERSION"
+  implementation "com.android.support:recyclerview-v7:$SUPPORT_LIBRARY_VERSION"
 
-    implementation "com.jakewharton:butterknife:$BUTTERKNIFE_VERSION"
-    kapt "com.jakewharton:butterknife-compiler:$BUTTERKNIFE_VERSION"
+  implementation "com.jakewharton:butterknife:$BUTTERKNIFE_VERSION"
+  kapt "com.jakewharton:butterknife-compiler:$BUTTERKNIFE_VERSION"
 }

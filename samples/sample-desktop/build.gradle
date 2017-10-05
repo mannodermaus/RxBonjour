@@ -4,9 +4,7 @@ apply plugin: "application"
 mainClassName = "de.mannodermaus.rxbonjour.samples.desktop.AppKt"
 
 dependencies {
-    // @formatter:off
-    compile project(":rxbonjour")
-    compile project(":rxbonjour-platform-desktop")
-    compile project(":rxbonjour-driver-jmdns")
-    // @formatter:on
+  compile project(":rxbonjour")
+  compile project(":rxbonjour-platform-desktop")
+  compile project(":rxbonjour-driver-jmdns")
 }

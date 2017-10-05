@@ -3,17 +3,15 @@ apply plugin: "kotlin"
 apply plugin: "org.junit.platform.gradle.plugin"
 
 dependencies {
-    // @formatter:off
-    implementation project(":rxbonjour")
-    implementation ("org.jmdns:jmdns:$JMDNS_JAR_VERSION") {                                 // Network Service Discovery API
-        exclude group: "org.slf4j"
-    }
-    implementation "org.slf4j:slf4j-nop:$SLF4J_VERSION"                                     // Logging Facade
+  implementation project(":rxbonjour")
+  implementation("org.jmdns:jmdns:$JMDNS_JAR_VERSION") {
+    exclude group: "org.slf4j"
+  }
+  implementation "org.slf4j:slf4j-nop:$SLF4J_VERSION"
 
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$JUNIT_JUPITER_VERSION"         // Unit Testing
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$JUNIT_JUPITER_VERSION"         // Unit Testing
-    testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
-    // @formatter:on
+  testImplementation "org.junit.jupiter:junit-jupiter-api:$JUNIT_JUPITER_VERSION"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$JUNIT_JUPITER_VERSION"
+  testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
 }
 
 // Deployment Setup

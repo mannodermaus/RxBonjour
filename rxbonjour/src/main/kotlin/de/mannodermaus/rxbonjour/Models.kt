@@ -10,26 +10,26 @@ private val DEFAULT_NAME = "RxBonjour Service"
 private val DEFAULT_PORT = 80
 
 data class BonjourBroadcastConfig @JvmOverloads constructor(
-        val type: String,
-        val name: String = DEFAULT_NAME,
-        val address: InetAddress? = null,
-        val port: Int = DEFAULT_PORT,
-        val txtRecords: TxtRecords? = emptyMap())
+    val type: String,
+    val name: String = DEFAULT_NAME,
+    val address: InetAddress? = null,
+    val port: Int = DEFAULT_PORT,
+    val txtRecords: TxtRecords? = emptyMap())
 
 data class BonjourService(
-        val type: String,
-        val name: String,
-        val v4Host: Inet4Address?,
-        val v6Host: Inet6Address?,
-        val port: Int,
-        val txtRecords: TxtRecords = emptyMap()) {
+    val type: String,
+    val name: String,
+    val v4Host: Inet4Address?,
+    val v6Host: Inet6Address?,
+    val port: Int,
+    val txtRecords: TxtRecords = emptyMap()) {
 
-    val host: InetAddress? = v4Host ?: v6Host
+  val host: InetAddress? = v4Host ?: v6Host
 }
 
 sealed class BonjourEvent(val service: BonjourService) {
-    class Added(service: BonjourService) : BonjourEvent(service)
-    class Removed(service: BonjourService) : BonjourEvent(service)
+  class Added(service: BonjourService) : BonjourEvent(service)
+  class Removed(service: BonjourService) : BonjourEvent(service)
 
-    override fun toString(): String = "BonjourEvent{${javaClass.simpleName}: $service}"
+  override fun toString(): String = "BonjourEvent{${javaClass.simpleName}: $service}"
 }

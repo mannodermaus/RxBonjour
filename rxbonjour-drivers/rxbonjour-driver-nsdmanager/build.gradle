@@ -3,31 +3,29 @@ apply plugin: "kotlin-android"
 apply plugin: "de.mannodermaus.android-junit5"
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
+  compileSdkVersion COMPILE_SDK_VERSION
+  buildToolsVersion BUILD_TOOLS_VERSION
 
-    defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion TARGET_SDK_VERSION
-        versionName VERSION_NAME
-    }
+  defaultConfig {
+    minSdkVersion 16
+    targetSdkVersion TARGET_SDK_VERSION
+    versionName VERSION_NAME
+  }
 
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
+  testOptions {
+    unitTests.returnDefaultValues = true
+  }
 
-    sourceSets {
-        main.java.srcDirs += "src/main/kotlin"
-    }
+  sourceSets {
+    main.java.srcDirs += "src/main/kotlin"
+  }
 }
 
 dependencies {
-    // @formatter:off
-    implementation project(":rxbonjour")
+  implementation project(":rxbonjour")
 
-    testImplementation junit5()
-    testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
-    // @formatter:on
+  testImplementation junit5()
+  testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
 }
 
 // Deployment Setup

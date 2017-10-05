@@ -21,68 +21,69 @@ private val BONJOUR_TYPE_LOCAL_SUFFIX = ".local."
 internal class JmDNSDiscoveryEngine
 constructor(type: String) : DiscoveryEngine {
 
-    // Append type suffix in order to have JmDNS pick up on the resolved services
-    private val serviceType = if (type.endsWith(BONJOUR_TYPE_LOCAL_SUFFIX)) type else type + BONJOUR_TYPE_LOCAL_SUFFIX
+  // Append type suffix in order to have JmDNS pick up on the resolved services
+  private val serviceType = if (type.endsWith(
+      BONJOUR_TYPE_LOCAL_SUFFIX)) type else type + BONJOUR_TYPE_LOCAL_SUFFIX
 
-    private var jmdns: JmDNS? = null
-    private var listener: JmDNSListener? = null
+  private var jmdns: JmDNS? = null
+  private var listener: JmDNSListener? = null
 
-    override fun initialize() {
-        // Disable logging for some JmDNS classes, since those severely clutter log output
-        Logger.getLogger(DNSIncoming::class.java.name).level = Level.OFF
-        Logger.getLogger(DNSRecordType::class.java.name).level = Level.OFF
-        Logger.getLogger(DNSRecordClass::class.java.name).level = Level.OFF
-        Logger.getLogger(DNSIncoming.MessageInputStream::class.java.name).level = Level.OFF
+  override fun initialize() {
+    // Disable logging for some JmDNS classes, since those severely clutter log output
+    Logger.getLogger(DNSIncoming::class.java.name).level = Level.OFF
+    Logger.getLogger(DNSRecordType::class.java.name).level = Level.OFF
+    Logger.getLogger(DNSRecordClass::class.java.name).level = Level.OFF
+    Logger.getLogger(DNSIncoming.MessageInputStream::class.java.name).level = Level.OFF
+  }
+
+  override fun discover(address: InetAddress, callback: DiscoveryCallback) {
+    val jmdns = JmDNS.create(address, address.toString())
+    this.jmdns = jmdns
+    this.listener = JmDNSListener(callback)
+
+    // This will start the discovery immediately
+    jmdns.addServiceListener(serviceType, listener)
+  }
+
+  override fun teardown() {
+    // Remove service listener & shut down JmDNS
+    jmdns?.let { jmdns ->
+      listener?.let { jmdns.removeServiceListener(serviceType, it) }
+
+      // Closing JmDNS might take a while, so defer it to a background thread
+      Completable.fromAction { jmdns.close() }
+          .compose(BonjourSchedulers.completableAsync())
+          .onErrorComplete()
+          .subscribe()
+    }
+  }
+
+  private class JmDNSListener(val callback: DiscoveryCallback) : ServiceListener {
+
+    override fun serviceAdded(event: ServiceEvent) {
+      // Resolve the service's info, don't call through with success yet
+      event.dns.requestServiceInfo(event.type, event.name)
     }
 
-    override fun discover(address: InetAddress, callback: DiscoveryCallback) {
-        val jmdns = JmDNS.create(address, address.toString())
-        this.jmdns = jmdns
-        this.listener = JmDNSListener(callback)
-
-        // This will start the discovery immediately
-        jmdns.addServiceListener(serviceType, listener)
+    override fun serviceRemoved(event: ServiceEvent) {
+      callback.serviceLost(event.info.toLibraryModel())
     }
 
-    override fun teardown() {
-        // Remove service listener & shut down JmDNS
-        jmdns?.let { jmdns ->
-            listener?.let { jmdns.removeServiceListener(serviceType, it) }
-
-            // Closing JmDNS might take a while, so defer it to a background thread
-            Completable.fromAction { jmdns.close() }
-                    .compose(BonjourSchedulers.completableAsync())
-                    .onErrorComplete()
-                    .subscribe()
-        }
+    override fun serviceResolved(event: ServiceEvent) {
+      callback.serviceResolved(event.info.toLibraryModel())
     }
-
-    private class JmDNSListener(val callback: DiscoveryCallback) : ServiceListener {
-
-        override fun serviceAdded(event: ServiceEvent) {
-            // Resolve the service's info, don't call through with success yet
-            event.dns.requestServiceInfo(event.type, event.name)
-        }
-
-        override fun serviceRemoved(event: ServiceEvent) {
-            callback.serviceLost(event.info.toLibraryModel())
-        }
-
-        override fun serviceResolved(event: ServiceEvent) {
-            callback.serviceResolved(event.info.toLibraryModel())
-        }
-    }
+  }
 }
 
 /* Extension Functions */
 
 // Mapping between JmDNS namespace & RxBonjour model type
 private fun ServiceInfo.toLibraryModel() = BonjourService(
-        name = this.name,
-        type = this.type,
-        v4Host = this.inet4Addresses.firstOrNull(),
-        v6Host = this.inet6Addresses.firstOrNull(),
-        port = this.port,
-        txtRecords = this.propertyNames
-                .toList()
-                .associate { Pair(it, this.getPropertyString(it)) })
+    name = this.name,
+    type = this.type,
+    v4Host = this.inet4Addresses.firstOrNull(),
+    v6Host = this.inet6Addresses.firstOrNull(),
+    port = this.port,
+    txtRecords = this.propertyNames
+        .toList()
+        .associate { Pair(it, this.getPropertyString(it)) })

@@ -6,19 +6,19 @@ import de.mannodermaus.rxbonjour.drivers.jmdns.JmDNSDriver
 import de.mannodermaus.rxbonjour.drivers.nsdmanager.NsdManagerDriver
 
 enum class DriverImpl(
-        private val library: String,
-        private val artifact: String,
-        val factory: (Context) -> Driver) {
+    private val library: String,
+    private val artifact: String,
+    val factory: (Context) -> Driver) {
 
-    JMDNS(
-            "JmDNS",
-            "rxbonjour-driver-jmdns",
-            { JmDNSDriver.create() }),
+  JMDNS(
+      "JmDNS",
+      "rxbonjour-driver-jmdns",
+      { JmDNSDriver.create() }),
 
-    NSDMANAGER(
-            "NsdManager",
-            "rxbonjour-driver-nsdmanager",
-            { NsdManagerDriver.create(it) });
+  NSDMANAGER(
+      "NsdManager",
+      "rxbonjour-driver-nsdmanager",
+      { NsdManagerDriver.create(it) });
 
-    override fun toString(): String = "$library ($artifact)"
+  override fun toString(): String = "$library ($artifact)"
 }
