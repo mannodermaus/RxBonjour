@@ -25,7 +25,7 @@ dependencies {
   implementation project(":rxbonjour")
 
   testImplementation junit5()
-  testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
+  testCompileOnly junit5EmbeddedRuntime()
 }
 
 // Deployment Setup

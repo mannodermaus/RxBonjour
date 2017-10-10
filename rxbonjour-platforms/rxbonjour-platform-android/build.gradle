@@ -26,7 +26,7 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"
 
     testImplementation junit5()
-    testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
+    testCompileOnly junit5EmbeddedRuntime()
 }
 
 // Deployment Setup

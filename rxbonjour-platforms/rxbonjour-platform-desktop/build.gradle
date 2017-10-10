@@ -5,8 +5,8 @@ apply plugin: "org.junit.platform.gradle.plugin"
 dependencies {
   implementation project(":rxbonjour")
 
-  testImplementation "org.junit.jupiter:junit-jupiter-api:$JUNIT_JUPITER_VERSION" // Unit Testing
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$JUNIT_JUPITER_VERSION" // Unit Testing
+  testImplementation "org.junit.jupiter:junit-jupiter-api:$JUNIT_JUPITER_VERSION"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$JUNIT_JUPITER_VERSION"
   testCompileOnly "de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:$JUNIT5_EMBEDDED_RUNTIME_VERSION"
 }
 
