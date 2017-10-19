@@ -1,3 +1,5 @@
+apply plugin: "com.github.ben-manes.versions"
+
 buildscript {
   repositories {
     jcenter()
@@ -13,11 +15,8 @@ buildscript {
     classpath "com.github.dcendents:android-maven-gradle-plugin:$DCENDENTS_MAVEN_PLUGIN_VERSION"
     classpath "de.mannodermaus.gradle.plugins:android-junit5:$ANDROID_JUNIT5_PLUGIN_VERSION"
     classpath "org.junit.platform:junit-platform-gradle-plugin:$JAVA_JUNIT5_PLUGIN_VERSION"
-
-    // TODO Moving to Jitpack until the official 3.0.0 Release of android-maven-publish
-    // (https://github.com/wupdigital/android-maven-publish/issues/2)
-    // classpath "digital.wup:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
-    classpath "com.github.wupdigital:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
+    classpath "digital.wup:android-maven-publish:$ANDROID_MAVEN_PLUGIN_VERSION"
+    classpath "com.github.ben-manes:gradle-versions-plugin:$VERSIONS_PLUGIN_VERSION"
   }
 }
 
