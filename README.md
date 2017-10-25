@@ -11,6 +11,11 @@ api "de.mannodermaus.rxjava:rxbonjour:1.0.1"
 
 For the RxJava 2 version, have a look at the [2.x][twox] branch.
 
+## ProGuard
+
+RxBonjour doesn't require any ProGuard rules directly for its exposed APIs.
+However, it depends on RxJava 1, which does have some requirements if you're obfuscating  your code. You can [include a dedicated dependency for its rules][proguardrules] in that case.
+
 ## Discovery
 
 Create a network service discovery request using `RxBonjour.newDiscovery(Context, String)` and subscribe to the returned `Observable`:
@@ -102,4 +107,5 @@ because of this, including this library in your application's dependencies autom
  [jmdns]: https://github.com/openhab/jmdns
  [jit]: https://jitpack.io
  [twox]: https://github.com/aurae/RxBonjour/tree/2.x
+ [proguardrules]: https://github.com/artem-zinnatullin/RxJavaProGuardRules
 	
