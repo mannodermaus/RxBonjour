@@ -25,8 +25,8 @@ dependencies {
     implementation project(":rxbonjour")
     implementation "io.reactivex.rxjava2:rxandroid:$RXANDROID_VERSION"
 
-    testImplementation junit5()
-    testCompileOnly junit5EmbeddedRuntime()
+    testImplementation junit5.unitTests()
+    testCompileOnly junit5.unitTestsRuntime()
 }
 
 // Deployment Setup

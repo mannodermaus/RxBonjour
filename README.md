@@ -128,7 +128,7 @@ Again, make sure to off-load this work onto a background thread like above, sinc
 
 ## License
 
-	Copyright 2017 Marcel Schnelle
+	Copyright 2017-2018 Marcel Schnelle
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
@@ -148,4 +148,3 @@ Again, make sure to off-load this work onto a background thread like above, sinc
  [jit]: https://jitpack.io
  [onex]: https://github.com/mannodermaus/RxBonjour/tree/1.x
  [travisci]: https://travis-ci.org/mannodermaus/RxBonjour
-	

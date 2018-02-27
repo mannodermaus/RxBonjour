@@ -24,8 +24,8 @@ android {
 dependencies {
   implementation project(":rxbonjour")
 
-  testImplementation junit5()
-  testCompileOnly junit5EmbeddedRuntime()
+  testImplementation junit5.unitTests()
+  testCompileOnly junit5.unitTestsRuntime()
 }
 
 // Deployment Setup
