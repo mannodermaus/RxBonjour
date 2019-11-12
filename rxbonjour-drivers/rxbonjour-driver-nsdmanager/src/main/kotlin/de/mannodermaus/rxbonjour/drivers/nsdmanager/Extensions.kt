@@ -17,7 +17,7 @@ internal fun NsdServiceInfo.getTxtRecords(): TxtRecords {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         // NSD Attributes only available on API 21+
         this.attributes
-                .map { (key, bytes) -> Pair(key, String(bytes, Charset.forName("UTF-8"))) }
+                .map { (key, bytes) -> Pair(key, String(bytes?: byteArrayOf(), Charset.forName("UTF-8"))) }
                 .associate { it }
 
     } else {
