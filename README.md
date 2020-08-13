@@ -2,6 +2,8 @@
 
 [![Travis Build Status](https://travis-ci.org/mannodermaus/RxBonjour.svg?branch=2.x)][travisci]
 
+⚠️ THIS PROJECT IS ARCHIVED. No further development is scheduled.
+
 A reactive wrapper around network service discovery functionalities for Kotlin and Java.
 
 ## Download
